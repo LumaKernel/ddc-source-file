@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron:  '0 0 1 * *'
+
+jobs:
+  check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            deno: v1.x
+    steps:
+      - uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno }}
+      - run: deno lint
+      - run: deno fmt --check
+      - run: deno test --unstable --no-run
+  test:
+    needs: [check]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            deno: v1.x
+          - os: ubuntu-latest
+            deno: v1.10
+          - os: ubuntu-latest
+            deno: v1.13
+          - os: ubuntu-latest
+            deno: canary
+          - os: windows-latest
+            deno: v1.x
+          - os: macos-latest
+            deno: v1.x
+    steps:
+      - uses: actions/checkout@v2
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno }}
+      - run: deno test --unstable
