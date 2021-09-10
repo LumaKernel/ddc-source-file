@@ -61,7 +61,7 @@ takeFileNum	(number)
 		before filtering. It is useful if there are too many 'a...'
 		files when filtering with 'z'.
 
-		Default: 100000
+		Default: 10000
 
 						  *ddc-file-param-projMarkers*
 projMarkers	(string[])

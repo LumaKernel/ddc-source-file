@@ -30,9 +30,9 @@ type FindPoint = {
 };
 
 // https://github.com/denoland/deno_std/issues/1216
-const exists = async (filepath: string): Promise<boolean> => {
+const exists = async (filePath: string): Promise<boolean> => {
   try {
-    await Deno.lstat(filepath);
+    await Deno.lstat(filePath);
     return true;
   } catch (_e: unknown) {
     return false;
@@ -185,7 +185,7 @@ export class Source extends BaseSource {
         ".vscode",
         ".github",
       ],
-      takeFileNum: 100000,
+      takeFileNum: 10000,
       cwdMaxCandidates: 1000,
       bufMaxCandidates: 1000,
       projFromCwdMaxCandidates: [1000],
