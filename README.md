@@ -10,7 +10,10 @@ Powerful and performant file name completion for ddc.vim.
 
 - [x] Main impl
 - [ ] Refactor variables names
-- [x] Write docs
+- [ ] Write docs
+  - [x] intro
+  - [x] params
+  - [ ] describe menu display rule (e.g. (`/cwd^2`)
 
 ## Required
 
