@@ -26,7 +26,7 @@ type FindPoint = {
   dir: string;
   max: number;
   asRoot: boolean;
-  menu?: string;
+  menu: string;
 };
 
 // https://github.com/denoland/deno_std/issues/1216
