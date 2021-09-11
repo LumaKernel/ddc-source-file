@@ -4,17 +4,6 @@
 
 Powerful and performant file name completion for ddc.vim.
 
-**DEVELOPING**: Take care to use.
-
-## TODOs
-
-- [x] Main impl
-- [x] Refactor variables names
-- [x] Write docs
-  - [x] intro
-  - [x] params
-  - [x] describe menu display rule (e.g. (`/cwd^2`)
-
 ## Required
 
 - [denops.vim](https://github.com/vim-denops/denops.vim)
