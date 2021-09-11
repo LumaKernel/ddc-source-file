@@ -132,6 +132,7 @@ export class Source extends BaseSource {
         p.projFromCwdMaxCandidates.length,
         Deno.cwd(),
         p.projMarkers,
+        path,
       ).then((dirs) =>
         dirs.map((dir, i) => ({
           dir,
@@ -158,6 +159,7 @@ export class Source extends BaseSource {
           p.projFromBufMaxCandidates.length,
           bufDir,
           p.projMarkers,
+          path,
         )
           .then((dirs) =>
             dirs.map((dir, i) => ({
