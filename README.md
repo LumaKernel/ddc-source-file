@@ -17,12 +17,18 @@ call ddc#custom#patch_global('sourceOptions', {
     \ 'file': {
     \   'mark': 'F',
     \   'isVolatile': v:true,
+    \   'forceCompletionPattern': '\S/\S*',
     \ }})
 call ddc#custom#patch_filetype(
-    \ ['ps1', 'dosbatch', 'autohotkey', 'registry'],
-    \ 'sourceParams', {
+    \ ['ps1', 'dosbatch', 'autohotkey', 'registry'], {
+    \ 'sourceOptions': {
+    \   'file': {
+    \     'forceCompletionPattern': '\S\\\S*',
+    \   },
+    \ },
+    \ 'sourceParams': {
     \   'file': {
     \     'mode': 'win32',
     \   },
-    \ })
+    \ }})
 ```
