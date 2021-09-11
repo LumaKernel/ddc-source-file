@@ -8,6 +8,7 @@ License: MIT <https://github.com/LumaKernel/ddc-file/blob/main/LICENSE>
 CONTENTS						   *ddc-file-contents*
 
 INTRODUCTION					       |ddc-file-introduction|
+DISPLAY RULES					      |ddc-file-display-rules|
 INSTALL							    |ddc-file-install|
 EXAMPLES						   |ddc-file-examples|
 PARAMS							     |ddc-file-params|
@@ -18,6 +19,19 @@ INTRODUCTION					       *ddc-file-introduction*
 This source collects candidates from file paths under the (1) buffer relative,
 (2) cwd relative, (3) project root (.git/, etc...; configurable by
 |ddc-file-param-projMarkers|) relative.
+
+==============================================================================
+DISPLAY RULES					      *ddc-file-display-rules*
+
+In menu (right side of the completion candidates), this source shows how was
+that completion got from.
+>
+    /cwd^2
+    ^|--||--- (a) if '/' is present, regard input '/' as the followed source
+     ^--||--- (b) 'buf', 'cwd', or omitted for absolute paths
+        ^|--- (c) if '^' is present, project-root found from (b)
+         ^--- (d) project-root search recursion level (1 is omitted)
+<
 
 ==============================================================================
 INSTALL							    *ddc-file-install*
