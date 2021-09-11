@@ -208,9 +208,9 @@ export class Source extends BaseSource {
               .take(p.takeFileNum)
               .filter(({ name }) => name.startsWith(inputBaseName))
               .map(({ name, isDirectory }): Candidate => ({
-                word: name +
-                  (isDirectory ? path.sep : ""),
+                word: name,
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
+                kind: isDirectory ? "dir" : "",
               }))
               .take(Math.min(max, maxCandidates))
               .toArray()
