@@ -29,12 +29,12 @@ type FindPoint = {
   menu: string;
 };
 
-// https://github.com/denoland/deno_std/issues/1216
-const exists = async (filePath: string): Promise<boolean> => {
+const existsDir = async (filePath: string): Promise<boolean> => {
   try {
-    await Deno.lstat(filePath);
-    return true;
+    return (await Deno.lstat(filePath)).isDirectory;
   } catch (_e: unknown) {
+    // Should not care about error.
+    // https://github.com/denoland/deno_std/issues/1216
     return false;
   }
 };
@@ -134,14 +134,16 @@ export class Source extends BaseSource {
         Deno.cwd(),
         p.projMarkers,
         path,
-      ).then((dirs) =>
-        dirs.map((dir, i) => ({
-          dir,
-          max: p.projFromCwdMaxCandidates[i],
-          menu: `cwd^${i === 0 ? "" : i + 1}`,
-          asRoot: p.projAsRoot,
-        }))
-      ),
+      )
+        .then((dirs) =>
+          dirs.map((dir, i) => ({
+            dir,
+            max: p.projFromCwdMaxCandidates[i],
+            menu: `cwd^${i === 0 ? "" : i + 1}`,
+            asRoot: p.projAsRoot,
+          }))
+        )
+        .catch(() => []),
     );
     if (path.isAbsolute(bufPath)) {
       const bufDir = path.dirname(bufPath);
@@ -169,7 +171,8 @@ export class Source extends BaseSource {
               menu: `buf^${i === 0 ? "" : i + 1}`,
               asRoot: p.projAsRoot,
             }))
-          ),
+          )
+          .catch(() => []),
       );
     }
 
@@ -194,7 +197,7 @@ export class Source extends BaseSource {
         }))
         .map(async (point) => ({
           point,
-          ex: await exists(point.dir.replaceAll(path.sep, univPath.sep)),
+          ex: await existsDir(point.dir.replaceAll(path.sep, univPath.sep)),
         })),
     );
 
@@ -205,7 +208,7 @@ export class Source extends BaseSource {
         .map(
           async ({ dir, menu, max }) =>
             await wrapA(
-              (await Deno.readDir(dir.replaceAll(path.sep, univPath.sep)))
+              Deno.readDir(dir.replaceAll(path.sep, univPath.sep))
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)

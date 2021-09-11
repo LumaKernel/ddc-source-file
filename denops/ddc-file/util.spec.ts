@@ -1,12 +1,10 @@
-// deno-lint-ignore-file require-await
-
 import { asserts, fromA, path } from "./deps.ts";
 import * as util from "./util.ts";
 
 const createVirtualDirReader: (
   virtualStorage: Record<string, string[]>,
 ) => util.DirReader = (virtualStorage) =>
-  async (abs: string) => fromA(virtualStorage[abs] ?? []);
+  (abs: string) => fromA(virtualStorage[abs] ?? []);
 
 Deno.test({
   name: "findMarkers() for posix",
