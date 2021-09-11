@@ -58,7 +58,10 @@ export class Source extends BaseSource {
     );
 
     // e.g. '~/config/', bufPath = '/home/ubuntu/config/init.vim'
-    const [inputFile, bufPath] = await internal.info(args.denops);
+    const [inputFile, inputFileTrailKeywords, bufPath] = await internal.info(
+      args.denops,
+      mode === "posix" ? "[[:fname:]/]*$" : "[[:fname:]\\\\]*$",
+    );
 
     // e.g. 'config' for inputFile = '~/config'
     // e.g. '' for inputFile = '~/config/'
@@ -218,7 +221,8 @@ export class Source extends BaseSource {
                   : name.startsWith(inputBaseName)
               )
               .map(({ name, isDirectory }): Candidate => ({
-                word: name,
+                word: inputFileTrailKeywords + name.slice(inputBaseName.length),
+                abbr: name,
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
                 kind: isDirectory ? "dir" : "",
               }))
