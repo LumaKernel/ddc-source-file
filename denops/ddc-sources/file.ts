@@ -211,7 +211,9 @@ export class Source extends BaseSource {
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)
-              .filter(({ name }) =>name.toUpperCase().startsWith(inputBaseName.toUpperCase()))
+              .filter(({ name }) =>
+                name.toUpperCase().startsWith(inputBaseName.toUpperCase())
+              )
               .map(({ name, isDirectory }): Candidate => ({
                 word: name,
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
