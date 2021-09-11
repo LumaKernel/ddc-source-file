@@ -1,13 +1,13 @@
 export type {
   Candidate,
   Context,
-} from "https://deno.land/x/ddc_vim@v0.3.0/types.ts";
-export { BaseSource } from "https://deno.land/x/ddc_vim@v0.3.0/types.ts";
-export type { Denops } from "https://deno.land/x/ddc_vim@v0.3.0/deps.ts";
-export { fn, vars } from "https://deno.land/x/ddc_vim@v0.3.0/deps.ts";
+} from "https://deno.land/x/ddc_vim@v0.5.2/types.ts";
+export { BaseSource } from "https://deno.land/x/ddc_vim@v0.5.2/types.ts";
+export type { Denops } from "https://deno.land/x/ddc_vim@v0.5.2/deps.ts";
+export { fn, vars } from "https://deno.land/x/ddc_vim@v0.5.2/deps.ts";
 export type {
   GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v0.3.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v0.5.2/base/source.ts";
 export * as path from "https://deno.land/std@0.106.0/path/mod.ts";
 export * as io from "https://deno.land/std@0.106.0/io/mod.ts";
 export * as fs from "https://deno.land/std@0.106.0/fs/mod.ts";
