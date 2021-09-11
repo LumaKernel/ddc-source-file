@@ -58,7 +58,10 @@ export class Source extends BaseSource {
     );
 
     // e.g. '~/config/', bufPath = '/home/ubuntu/config/init.vim'
-    const [inputFile, bufPath] = await internal.info(args.denops);
+    const [inputFile, bufPath] = await internal.info(
+      args.denops,
+      mode === "posix" ? "[[:fname:]/]*$" : "[[:fname:]\\\\]*$",
+    );
 
     // e.g. 'config' for inputFile = '~/config'
     // e.g. '' for inputFile = '~/config/'
