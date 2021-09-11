@@ -4,12 +4,14 @@
 "   string,
 " ]}
 function! ddc_file#internal#info(pat) abort
-  let line = getline('.')[: col('.') - 1]
-  let file = line[match(line, a:pat) :]
+  let input_line = getline('.')[: col('.') - 1]
+  let input_file = input_line[match(input_line, a:pat) :]
+  let input_file_trail_keywords = input_file[match(input_file, '\k*$') :]
   let buf_path = expand('%:p')
 
   return [
-      \ file,
+      \ input_file,
+      \ input_file_trail_keywords,
       \ buf_path,
     \ ]
 endfunction

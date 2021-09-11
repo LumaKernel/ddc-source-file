@@ -15,6 +15,7 @@ export type Info = (
 ) => Promise<[
   string,
   string,
+  string,
 ]>;
 export const info = createCaller(
   "ddc_file#internal#info",
