@@ -1,8 +1,8 @@
 import { path as univPath, wrapA } from "./deps.ts";
 
-export type DirReader = (absPath: string) => Promise<AsyncIterator<string>>;
-export const defaultDirReader: DirReader = async (absPath) =>
-  wrapA((await Deno.readDir(absPath))[Symbol.asyncIterator]())
+export type DirReader = (absPath: string) => AsyncIterator<string>;
+export const defaultDirReader: DirReader = (absPath) =>
+  wrapA(Deno.readDir(absPath)[Symbol.asyncIterator]())
     .map((entry) => entry.name)
     .unwrap();
 
@@ -14,7 +14,7 @@ export const findMarkers = async (
   dirReader: DirReader = defaultDirReader,
 ): Promise<string[]> => {
   if (max <= 0) return [];
-  const found = await wrapA(await dirReader(fromAbsNormalized))
+  const found = await wrapA(dirReader(fromAbsNormalized))
     .some((p) => targets.includes(p));
   const parsed = path.parse(fromAbsNormalized);
   if (found) {

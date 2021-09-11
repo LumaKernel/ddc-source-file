@@ -1,4 +1,4 @@
-*ddc-fie.txt*		   Powerful and Performant File Completion for ddc.vim
+*ddc-file.txt*		   Powerful and Performant File Completion for ddc.vim
 
 Author : Luma <world@luma.email>
 License: MIT <https://github.com/LumaKernel/ddc-file/blob/main/LICENSE>
