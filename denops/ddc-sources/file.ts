@@ -49,6 +49,7 @@ export class Source extends BaseSource {
       : p.mode;
     const path = mode === "posix" ? univPath.posix : univPath.win32;
     const maxCandidates = args.sourceOptions.maxCandidates;
+    const ignoreCase = args.sourceOptions.ignoreCase;
     const maxOfMax = Math.max(
       p.cwdMaxCandidates,
       p.bufMaxCandidates,
@@ -208,7 +209,11 @@ export class Source extends BaseSource {
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)
-              .filter(({ name }) => name.startsWith(inputBaseName))
+              .filter(({ name }) =>
+                ignoreCase
+                  ? name.toUpperCase().startsWith(inputBaseName.toUpperCase())
+                  : name.startsWith(inputBaseName)
+              )
               .map(({ name, isDirectory }): Candidate => ({
                 word: name,
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
