@@ -9,7 +9,7 @@ Powerful and performant file name completion for ddc.vim.
 ## TODOs
 
 - [x] Main impl
-- [ ] Refactor variables names
+- [x] Refactor variables names
 - [x] Write docs
   - [x] intro
   - [x] params

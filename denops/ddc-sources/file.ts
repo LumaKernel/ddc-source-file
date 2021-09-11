@@ -17,15 +17,15 @@ type Params = {
   bufMaxCandidates: number;
   projFromCwdMaxCandidates: number[];
   projFromBufMaxCandidates: number[];
-  cwdIsRoot: boolean;
-  bufIsRoot: boolean;
-  projIsRoot: boolean;
+  cwdAsRoot: boolean;
+  bufAsRoot: boolean;
+  projAsRoot: boolean;
 };
 
 type FindPoint = {
   dir: string;
   max: number;
-  isRoot: boolean;
+  asRoot: boolean;
   menu?: string;
 };
 
@@ -55,44 +55,79 @@ export class Source extends BaseSource {
       ...p.projFromCwdMaxCandidates,
       ...p.projFromBufMaxCandidates,
     );
+
+    // e.g. '~/config/', bufPath = '/home/ubuntu/config/init.vim'
     const [inputFile, bufPath] = await internal.info(args.denops);
-    const base = inputFile.endsWith(path.sep) ? "" : path.basename(inputFile);
+
+    // e.g. 'config' for inputFile = '~/config'
+    // e.g. '' for inputFile = '~/config/'
+    const inputBaseName = inputFile.endsWith(path.sep)
+      ? ""
+      : path.basename(inputFile);
+
+    // e.g. '/home/ubuntu/config' for inputFile = '~/config'
     const inputFileExpanded = (() => {
       const home = homeDir();
       const last = inputFile.endsWith(path.sep) ? path.sep : "";
-      if (home && inputFile.startsWith(`~${path.sep}`)) {
-        return path.join(home, inputFile.slice(2)) + last;
+      {
+        const pat = `~${path.sep}`;
+        if (home && inputFile.startsWith(pat)) {
+          return path.join(home, inputFile.slice(pat.length)) + last;
+        }
       }
-      if (home && inputFile.startsWith(`$HOME${path.sep}`)) {
-        return path.join(home, inputFile.slice(6)) + last;
+      {
+        const pat = `$HOME${path.sep}`;
+        if (home && inputFile.startsWith(pat)) {
+          return path.join(home, inputFile.slice(pat.length)) + last;
+        }
       }
-      if (
-        home && inputFile.toUpperCase().startsWith(`%USERPROFILE%${path.sep}`)
-      ) {
-        return path.join(home, inputFile.slice(14)) + last;
+      {
+        const pat = `%USERPROFILE%${path.sep}`;
+        if (
+          home && inputFile.toUpperCase().startsWith(pat)
+        ) {
+          return path.join(home, inputFile.slice(pat.length)) + last;
+        }
       }
       return inputFile;
     })();
 
-    const fromDirsProms:
+    // e.g. '/home/ubuntu/config' for inputFile = '~/config/'
+    // e.g. '/home/ubuntu' for inputFile = '~/config'
+    const inputDirName = inputFileExpanded.endsWith(path.sep)
+      ? inputFileExpanded
+      : path.dirname(inputFileExpanded);
+
+    // e.g. true for inputFile = '~/config', '/tmp/'
+    // e.g. false for inputFile = 'tmp/', './tmp'
+    const isInputAbs = path.isAbsolute(inputFileExpanded);
+
+    const findPointsLazy:
       (FindPoint | FindPoint[] | Promise<FindPoint | FindPoint[]>)[] = [];
-    const isAbs = path.isAbsolute(inputFileExpanded);
-    if (isAbs) {
-      fromDirsProms.push({
+
+    if (isInputAbs) {
+      // In this case, other points become 'asRoot' or omitted if asRoot is
+      // not set, so the point from root should be added separately.
+
+      // point from fs root
+      findPointsLazy.push({
         dir: "",
         menu: "",
         max: maxOfMax,
-        isRoot: true,
+        asRoot: true,
       });
     }
 
-    fromDirsProms.push({
+    // point from cwd
+    findPointsLazy.push({
       dir: Deno.cwd(),
       max: p.cwdMaxCandidates,
       menu: "cwd",
-      isRoot: p.cwdIsRoot,
+      asRoot: p.cwdAsRoot,
     });
-    fromDirsProms.push(
+
+    // point from project-root found from cwd
+    findPointsLazy.push(
       util.findMarkers(
         p.projFromCwdMaxCandidates.length,
         Deno.cwd(),
@@ -102,19 +137,23 @@ export class Source extends BaseSource {
           dir,
           max: p.projFromCwdMaxCandidates[i],
           menu: `cwd^${i === 0 ? "" : i + 1}`,
-          isRoot: p.projIsRoot,
+          asRoot: p.projAsRoot,
         }))
       ),
     );
     if (path.isAbsolute(bufPath)) {
       const bufDir = path.dirname(bufPath);
-      fromDirsProms.push({
+
+      // point from buf
+      findPointsLazy.push({
         dir: bufDir,
         menu: "buf",
         max: p.bufMaxCandidates,
-        isRoot: p.bufIsRoot,
+        asRoot: p.bufAsRoot,
       });
-      fromDirsProms.push(
+
+      // point from project-root found from buf
+      findPointsLazy.push(
         util.findMarkers(
           p.projFromBufMaxCandidates.length,
           bufDir,
@@ -125,32 +164,39 @@ export class Source extends BaseSource {
               dir,
               max: p.projFromBufMaxCandidates[i],
               menu: `buf^${i === 0 ? "" : i + 1}`,
-              isRoot: p.projIsRoot,
+              asRoot: p.projAsRoot,
             }))
           ),
       );
     }
 
-    const tmp4 = inputFileExpanded.endsWith(path.sep)
-      ? inputFileExpanded
-      : path.dirname(inputFileExpanded);
-    const fromDirs = await Promise.all(fromDirsProms);
-    const inputPaths = await Promise.all(
-      fromDirs
+    // e.g. [
+    //   {dir: '', asRoot: true, ...},
+    //   {dir: '/home/ubuntu/config', asRoot: true, ...},
+    // ]
+    const findPoints = await Promise.all(findPointsLazy);
+
+    // e.g. [
+    //   {dir: '/vim', ...},
+    //   {dir: '/home/ubuntu/config/vim', ...},
+    // ] for inputFile = '/vim'
+    const resolvedFindPoints = await Promise.all(
+      findPoints
         .flat()
         .filter(({ max }) => max >= 1)
-        .filter(({ isRoot }) => !isAbs || isRoot)
+        .filter(({ asRoot }) => !isInputAbs || asRoot)
         .map((point) => ({
           ...point,
-          dir: path.normalize(path.join(point.dir, tmp4)),
+          dir: path.normalize(path.join(point.dir, inputDirName)),
         }))
         .map(async (point) => ({
           point,
           ex: await exists(point.dir.replaceAll(path.sep, univPath.sep)),
         })),
     );
-    const tmp2 = await Promise.all(
-      inputPaths
+
+    const candidatesList = await Promise.all(
+      resolvedFindPoints
         .filter(({ ex }) => ex)
         .map(({ point }) => point)
         .map(
@@ -160,21 +206,21 @@ export class Source extends BaseSource {
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)
-              .filter(({ name }) => name.startsWith(base))
+              .filter(({ name }) => name.startsWith(inputBaseName))
               .map(({ name, isDirectory }): Candidate => ({
                 word: name +
                   (isDirectory ? path.sep : ""),
-                menu: (menu !== "" && isAbs ? path.sep : "") + menu,
+                menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
               }))
               .take(Math.min(max, maxCandidates))
               .toArray()
               .catch(() => []),
         ),
     );
-    const cs: Candidate[] = tmp2
+    const candidates: Candidate[] = candidatesList
       .flat();
 
-    return cs;
+    return candidates;
   }
 
   params(): Params {
@@ -190,9 +236,9 @@ export class Source extends BaseSource {
       bufMaxCandidates: 1000,
       projFromCwdMaxCandidates: [1000],
       projFromBufMaxCandidates: [1000],
-      cwdIsRoot: false,
-      bufIsRoot: false,
-      projIsRoot: true,
+      cwdAsRoot: false,
+      bufAsRoot: false,
+      projAsRoot: true,
     };
   }
 }

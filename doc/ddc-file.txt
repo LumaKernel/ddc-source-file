@@ -114,7 +114,7 @@ projFromCwdMaxCandidates	(number[])
 		        |- my-document.txt
 		If [10] is set, sub-project/ is only found with up to 10 files.
 		If [10, 5] is set, sub-project/ is found with up to 10 files
-		and my-project is also found with up to 5 files.
+		and my-project/ is also found with up to 5 files.
 
 		Default: [1000]
 
@@ -125,23 +125,23 @@ projFromBufMaxCandidates	(number[])
 
 		Default: [1000]
 
-						   *ddc-file-params-cwdIsRoot*
-cwdIsRoot	(boolean)
+						   *ddc-file-params-cwdAsRoot*
+cwdAsRoot	(boolean)
 		Set to true to complete from cwd even if the input is absolute
 		path. e.g. the input is '/REA', and there is
-		<cwd>/README.md, it will be completed as well.
+		<cwd>/README.md, this will be completed as well.
 
 		Default: false
 
-						   *ddc-file-params-bufIsRoot*
-bufIsRoot	(boolean)
-		Buffer relative version of |ddc-file-params-cwdIsRoot|.
+						   *ddc-file-params-bufAsRoot*
+bufAsRoot	(boolean)
+		Buffer relative version of |ddc-file-params-cwdAsRoot|.
 
 		Default: false
 
-						  *ddc-file-params-projIsRoot*
-projIsRoot	(boolean)
-		Project-root relative version of |ddc-file-params-cwdIsRoot|.
+						  *ddc-file-params-projAsRoot*
+projAsRoot	(boolean)
+		Project-root relative version of |ddc-file-params-cwdAsRoot|.
 
 		Default: true
 
