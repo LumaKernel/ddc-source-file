@@ -102,7 +102,7 @@ export class Source extends BaseSource {
     // e.g. false for inputFile = 'tmp/', './tmp'
     const isInputAbs = path.isAbsolute(inputFileExpanded);
 
-    const findPointsLazy:
+    const findPointsAsync:
       (FindPoint | FindPoint[] | Promise<FindPoint | FindPoint[]>)[] = [];
 
     if (isInputAbs) {
@@ -110,7 +110,7 @@ export class Source extends BaseSource {
       // not set, so the point from root should be added separately.
 
       // point from fs root
-      findPointsLazy.push({
+      findPointsAsync.push({
         dir: "",
         menu: "",
         max: maxOfMax,
@@ -119,7 +119,7 @@ export class Source extends BaseSource {
     }
 
     // point from cwd
-    findPointsLazy.push({
+    findPointsAsync.push({
       dir: Deno.cwd(),
       max: p.cwdMaxCandidates,
       menu: "cwd",
@@ -127,7 +127,7 @@ export class Source extends BaseSource {
     });
 
     // point from project-root found from cwd
-    findPointsLazy.push(
+    findPointsAsync.push(
       util.findMarkers(
         p.projFromCwdMaxCandidates.length,
         Deno.cwd(),
@@ -145,7 +145,7 @@ export class Source extends BaseSource {
       const bufDir = path.dirname(bufPath);
 
       // point from buf
-      findPointsLazy.push({
+      findPointsAsync.push({
         dir: bufDir,
         menu: "buf",
         max: p.bufMaxCandidates,
@@ -153,7 +153,7 @@ export class Source extends BaseSource {
       });
 
       // point from project-root found from buf
-      findPointsLazy.push(
+      findPointsAsync.push(
         util.findMarkers(
           p.projFromBufMaxCandidates.length,
           bufDir,
@@ -174,7 +174,7 @@ export class Source extends BaseSource {
     //   {dir: '', asRoot: true, ...},
     //   {dir: '/home/ubuntu/config', asRoot: true, ...},
     // ]
-    const findPoints = await Promise.all(findPointsLazy);
+    const findPoints = await Promise.all(findPointsAsync);
 
     // e.g. [
     //   {dir: '/vim', ...},
