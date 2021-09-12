@@ -58,15 +58,15 @@ export class Source extends BaseSource {
 
     // e.g. (
     //   inputFileFull = '~/config/aaa.bbb'
-    //   inputFileBase = 'aaa.'
+    //   inputFileBasePrefix = 'aaa.'
     //   bufPath = '/home/ubuntu/config/init.vim'
     // )
     // e.g. (
     //   inputFileFull = 'config/abc'
-    //   inputFileBase = ''
+    //   inputFileBasePrefix = ''
     //   bufPath = '/dir/to/path'
     // )
-    const [inputFileFull, inputFileBase, bufPath] = await internal.info(
+    const [inputFileFull, inputFileBasePrefix, bufPath] = await internal.info(
       args.denops,
       mode === "posix",
     );
@@ -217,9 +217,9 @@ export class Source extends BaseSource {
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)
-              .filter(({ name }) => name.startsWith(inputFileBase))
+              .filter(({ name }) => name.startsWith(inputFileBasePrefix))
               .map(({ name, isDirectory }): Candidate => ({
-                word: name.slice(inputFileBase.length),
+                word: name.slice(inputFileBasePrefix.length),
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
                 kind: isDirectory ? "dir" : "",
               }))
