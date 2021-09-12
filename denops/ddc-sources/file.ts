@@ -48,8 +48,6 @@ export class Source extends BaseSource {
       ? (Deno.build.os === "windows" ? "win32" : "posix")
       : p.mode;
     const path = mode === "posix" ? univPath.posix : univPath.win32;
-    const maxCandidates = args.sourceOptions.maxCandidates;
-    const ignoreCase = args.sourceOptions.ignoreCase;
     const maxOfMax = Math.max(
       p.cwdMaxCandidates,
       p.bufMaxCandidates,
@@ -57,54 +55,57 @@ export class Source extends BaseSource {
       ...p.projFromBufMaxCandidates,
     );
 
-    // e.g. '~/config/', bufPath = '/home/ubuntu/config/init.vim'
-    const [inputFile, inputFileTrailKeywords, bufPath] = await internal.info(
+    // e.g. (
+    //   inputFileFull = '~/config/aaa.bbb'
+    //   inputFileBasePrefix = 'aaa.'
+    //   bufPath = '/home/ubuntu/config/init.vim'
+    // )
+    // e.g. (
+    //   inputFileFull = 'config/abc'
+    //   inputFileBasePrefix = ''
+    //   bufPath = '/dir/to/path'
+    // )
+    const [inputFileFull, inputFileBasePrefix, bufPath] = await internal.info(
       args.denops,
-      mode === "posix" ? "[[:fname:]/]*$" : "[[:fname:]\\\\]*$",
+      mode === "posix",
     );
 
-    // e.g. 'config' for inputFile = '~/config'
-    // e.g. '' for inputFile = '~/config/'
-    const inputBaseName = inputFile.endsWith(path.sep)
-      ? ""
-      : path.basename(inputFile);
-
-    // e.g. '/home/ubuntu/config' for inputFile = '~/config'
-    const inputFileExpanded = (() => {
+    // e.g. '/home/ubuntu/config' for inputFileFull = '~/config'
+    const inputFileFullExpanded = (() => {
       const home = homeDir();
-      const last = inputFile.endsWith(path.sep) ? path.sep : "";
+      const last = inputFileFull.endsWith(path.sep) ? path.sep : "";
       {
         const pat = `~${path.sep}`;
-        if (home && inputFile.startsWith(pat)) {
-          return path.join(home, inputFile.slice(pat.length)) + last;
+        if (home && inputFileFull.startsWith(pat)) {
+          return path.join(home, inputFileFull.slice(pat.length)) + last;
         }
       }
       {
         const pat = `$HOME${path.sep}`;
-        if (home && inputFile.startsWith(pat)) {
-          return path.join(home, inputFile.slice(pat.length)) + last;
+        if (home && inputFileFull.startsWith(pat)) {
+          return path.join(home, inputFileFull.slice(pat.length)) + last;
         }
       }
       {
         const pat = `%USERPROFILE%${path.sep}`;
         if (
-          home && inputFile.toUpperCase().startsWith(pat)
+          home && inputFileFull.toUpperCase().startsWith(pat)
         ) {
-          return path.join(home, inputFile.slice(pat.length)) + last;
+          return path.join(home, inputFileFull.slice(pat.length)) + last;
         }
       }
-      return inputFile;
+      return inputFileFull;
     })();
 
-    // e.g. '/home/ubuntu/config' for inputFile = '~/config/'
-    // e.g. '/home/ubuntu' for inputFile = '~/config'
-    const inputDirName = inputFileExpanded.endsWith(path.sep)
-      ? inputFileExpanded
-      : path.dirname(inputFileExpanded);
+    // e.g. '/home/ubuntu/config' for inputFileFull = '~/config/'
+    // e.g. '/home/ubuntu' for inputFileFull = '~/config'
+    const inputDirName = inputFileFullExpanded.endsWith(path.sep)
+      ? inputFileFullExpanded
+      : path.dirname(inputFileFullExpanded);
 
-    // e.g. true for inputFile = '~/config', '/tmp/'
-    // e.g. false for inputFile = 'tmp/', './tmp'
-    const isInputAbs = path.isAbsolute(inputFileExpanded);
+    // e.g. true for inputFileFull = '~/config', '/tmp/'
+    // e.g. false for inputFileFull = 'tmp/', './tmp'
+    const isInputAbs = path.isAbsolute(inputFileFullExpanded);
 
     const findPointsAsync:
       (FindPoint | FindPoint[] | Promise<FindPoint | FindPoint[]>)[] = [];
@@ -188,7 +189,7 @@ export class Source extends BaseSource {
     // e.g. [
     //   {dir: '/vim', ...},
     //   {dir: '/home/ubuntu/config/vim', ...},
-    // ] for inputFile = '/vim'
+    // ] for inputFileFull = '/vim'
     const resolvedFindPoints = await Promise.all(
       findPoints
         .flat()
@@ -215,18 +216,13 @@ export class Source extends BaseSource {
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)
-              .filter(({ name }) =>
-                ignoreCase
-                  ? name.toUpperCase().startsWith(inputBaseName.toUpperCase())
-                  : name.startsWith(inputBaseName)
-              )
+              .filter(({ name }) => name.startsWith(inputFileBasePrefix))
               .map(({ name, isDirectory }): Candidate => ({
-                word: inputFileTrailKeywords + name.slice(inputBaseName.length),
-                abbr: name,
+                word: name.slice(inputFileBasePrefix.length),
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
                 kind: isDirectory ? "dir" : "",
               }))
-              .take(Math.min(max, maxCandidates))
+              .take(max)
               .toArray()
               .catch(() => []),
         ),
