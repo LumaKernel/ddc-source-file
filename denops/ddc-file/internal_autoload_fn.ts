@@ -11,7 +11,7 @@ const createCaller = (name: string): any => {
 
 export type Info = (
   denops: Denops,
-  pat: string,
+  isPosix: boolean,
 ) => Promise<[
   string,
   string,
