@@ -48,7 +48,6 @@ export class Source extends BaseSource {
       ? (Deno.build.os === "windows" ? "win32" : "posix")
       : p.mode;
     const path = mode === "posix" ? univPath.posix : univPath.win32;
-    const maxCandidates = args.sourceOptions.maxCandidates;
     const maxOfMax = Math.max(
       p.cwdMaxCandidates,
       p.bufMaxCandidates,
@@ -223,7 +222,7 @@ export class Source extends BaseSource {
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
                 kind: isDirectory ? "dir" : "",
               }))
-              .take(Math.min(max, maxCandidates))
+              .take(max)
               .toArray()
               .catch(() => []),
         ),
