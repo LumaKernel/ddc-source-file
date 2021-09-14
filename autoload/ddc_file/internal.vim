@@ -23,7 +23,7 @@ endfunction
 "   string,
 " ]}
 function! ddc_file#internal#info(is_posix) abort
-  let input_line = getline('.')[: col('.') - 1]
+  let input_line = getline('.')[: col('.') - 2]
   let input_file_full = s:line_to_file_full(input_line, a:is_posix)
   let input_file_base_prefix = s:full_to_base_prefix(input_file_full, a:is_posix)
   let buf_path = expand('%:p')
