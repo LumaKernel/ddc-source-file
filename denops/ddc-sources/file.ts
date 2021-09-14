@@ -31,7 +31,7 @@ type FindPoint = {
 
 const existsDir = async (filePath: string): Promise<boolean> => {
   try {
-    return (await Deno.lstat(filePath)).isDirectory;
+    return (await Deno.stat(filePath)).isDirectory;
   } catch (_e: unknown) {
     // Should not care about error.
     // https://github.com/denoland/deno_std/issues/1216
