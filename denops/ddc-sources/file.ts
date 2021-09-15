@@ -217,10 +217,10 @@ export class Source extends BaseSource {
             )
               .take(p.takeFileNum)
               .filter(({ name }) => name.startsWith(inputFileBasePrefix))
-              .map(({ name, isDirectory }): Candidate => ({
+              .map(({ name, isDirectory, isSymlink }): Candidate => ({
                 word: name.slice(inputFileBasePrefix.length),
                 menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
-                kind: isDirectory ? "dir" : "",
+                kind: isDirectory ? "dir" : isSymlink ? "sym" : "",
               }))
               .take(max)
               .toArray()
