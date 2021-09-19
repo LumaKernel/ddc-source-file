@@ -17,7 +17,6 @@ call ddc#custom#patch_global('sourceOptions', {
     \ 'file': {
     \   'mark': 'F',
     \   'isVolatile': v:true,
-    \   'minAutoCompleteLength': 1000,
     \   'forceCompletionPattern': '\S/\S*',
     \ }})
 call ddc#custom#patch_filetype(
