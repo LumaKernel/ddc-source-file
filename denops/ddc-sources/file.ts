@@ -39,9 +39,9 @@ const existsDir = async (filePath: string): Promise<boolean> => {
   }
 };
 
-export class Source extends BaseSource {
+export class Source extends BaseSource<Params> {
   async gatherCandidates(
-    args: GatherCandidatesArguments,
+    args: GatherCandidatesArguments<Params>,
   ): Promise<Candidate[]> {
     const p = args.sourceParams as Params;
     const mode = p.mode === "os"

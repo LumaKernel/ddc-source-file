@@ -50,7 +50,6 @@ EXAMPLES						   *ddc-file-examples*
 	    \ 'file': {
 	    \   'mark': 'F',
 	    \   'isVolatile': v:true,
-	    \   'minAutoCompleteLength': 1000,
 	    \   'forceCompletionPattern': '\S/\S*',
 	    \ }})
 	call ddc#custom#patch_filetype(
