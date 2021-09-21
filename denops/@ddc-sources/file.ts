@@ -5,9 +5,9 @@ import {
   homeDir,
   path as univPath,
   wrapA,
-} from "../ddc-file/deps.ts";
-import * as util from "../ddc-file/util.ts";
-import * as internal from "../ddc-file/internal_autoload_fn.ts";
+} from "../@ddc-file/deps.ts";
+import * as util from "../@ddc-file/util.ts";
+import * as internal from "../@ddc-file/internal_autoload_fn.ts";
 
 type Params = {
   mode: "os" | "win32" | "posix";
