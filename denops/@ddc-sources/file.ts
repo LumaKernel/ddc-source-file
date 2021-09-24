@@ -20,6 +20,18 @@ type Params = {
   cwdAsRoot: boolean;
   bufAsRoot: boolean;
   projAsRoot: boolean;
+  trailingSlash: boolean;
+  followSymlinks: boolean;
+  disableMenu: boolean;
+
+  // display customize
+  displayFile: string;
+  displayDir: string;
+  displaySym: string;
+  displaySymFile: string;
+  displaySymDir: string;
+  displayCwd: string;
+  displayBuf: string;
 };
 
 type FindPoint = {
@@ -127,7 +139,7 @@ export class Source extends BaseSource<Params> {
     findPointsAsync.push({
       dir: Deno.cwd(),
       max: p.cwdMaxCandidates,
-      menu: "cwd",
+      menu: p.displayCwd,
       asRoot: p.cwdAsRoot,
     });
 
@@ -143,7 +155,7 @@ export class Source extends BaseSource<Params> {
           dirs.map((dir, i) => ({
             dir,
             max: p.projFromCwdMaxCandidates[i],
-            menu: `cwd^${i === 0 ? "" : i + 1}`,
+            menu: `${p.displayCwd}^${i === 0 ? "" : i + 1}`,
             asRoot: p.projAsRoot,
           }))
         )
@@ -155,7 +167,7 @@ export class Source extends BaseSource<Params> {
       // point from buf
       findPointsAsync.push({
         dir: bufDir,
-        menu: "buf",
+        menu: p.displayBuf,
         max: p.bufMaxCandidates,
         asRoot: p.bufAsRoot,
       });
@@ -172,7 +184,7 @@ export class Source extends BaseSource<Params> {
             dirs.map((dir, i) => ({
               dir,
               max: p.projFromBufMaxCandidates[i],
-              menu: `buf^${i === 0 ? "" : i + 1}`,
+              menu: `${p.displayBuf}^${i === 0 ? "" : i + 1}`,
               asRoot: p.projAsRoot,
             }))
           )
@@ -217,10 +229,25 @@ export class Source extends BaseSource<Params> {
             )
               .take(p.takeFileNum)
               .filter(({ name }) => name.startsWith(inputFileBasePrefix))
+              .map(async (entry) => ({
+                ...entry,
+                isDirectory: entry.isDirectory ||
+                  (entry.isSymlink && p.followSymlinks &&
+                    await existsDir(path.join(dir, entry.name))),
+              }))
               .map(({ name, isDirectory, isSymlink }): Candidate => ({
-                word: name.slice(inputFileBasePrefix.length),
-                menu: (menu !== "" && isInputAbs ? path.sep : "") + menu,
-                kind: isDirectory ? "dir" : isSymlink ? "sym" : "",
+                word: name.slice(inputFileBasePrefix.length) +
+                  (p.trailingSlash && isDirectory ? path.sep : ""),
+                menu: p.disableMenu
+                  ? undefined
+                  : (menu !== "" && isInputAbs ? path.sep : "") + menu,
+                kind: isSymlink
+                  ? p.followSymlinks
+                    ? isDirectory ? p.displaySymDir : p.displaySymFile
+                    : p.displaySym
+                  : isDirectory
+                  ? p.displayDir
+                  : p.displayFile,
               }))
               .take(max)
               .toArray()
@@ -249,6 +276,18 @@ export class Source extends BaseSource<Params> {
       cwdAsRoot: false,
       bufAsRoot: false,
       projAsRoot: true,
+      trailingSlash: false,
+      followSymlinks: false,
+      disableMenu: false,
+
+      // display customize
+      displayFile: "file",
+      displayDir: "dir",
+      displaySym: "sym",
+      displaySymFile: "sym=file",
+      displaySymDir: "sym=dir",
+      displayCwd: "cwd",
+      displayBuf: "buf",
     };
   }
 }

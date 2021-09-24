@@ -28,11 +28,16 @@ In menu (right side of the completion candidates), this source shows how was
 that completion got from.
 >
     /cwd^2
-    ^|--||--- (a) if '/' is present, regard input '/' as the followed source
+    ^|--||--- (a) if '/' is present, regard input's '/' as relative
      ^--||--- (b) 'buf', 'cwd', or omitted for absolute paths
         ^|--- (c) if '^' is present, project-root found from (b)
          ^--- (d) project-root search recursion level (1 is omitted)
 <
+
+It can be disabled by |ddc-file-params-disableMenu| and customized by
+following.
+- |ddc-file-params-displayCwd|
+- |ddc-file-params-displayBuf|
 
 ==============================================================================
 INSTALL							    *ddc-file-install*
@@ -151,6 +156,50 @@ projAsRoot	(boolean)
 		Project-root relative version of |ddc-file-params-cwdAsRoot|.
 
 		Default: true
+
+					       *ddc-file-params-trailingSlash*
+trailingSlash	(boolean)
+		Whether to include trailing slash when completing directory
+		name.
+
+		Default: false
+
+					      *ddc-file-params-followSymlinks*
+followSymlinks	(boolean)
+		Whether to follow symlinks to determine whether the filename
+		completing is file or directory. Note that, if you are trying
+		to complete /foo/bar/bar when /foo/bar is symlink, it'll work
+		without this param.
+
+		Default: false
+
+						 *ddc-file-params-disableMenu*
+disableMenu	(boolean)
+		Disable to show menu like `buf^`. |ddc-file-display-rules|
+
+		Default: false
+
+						 *ddc-file-params-displayFile*
+						  *ddc-file-params-displayDir*
+						  *ddc-file-params-displaySym*
+					       *ddc-file-params-displaySymDir*
+					      *ddc-file-params-displaySymFile*
+displayFile	(string) Default: "file"
+displayDir	(string) Default: "dir"
+displaySym	(string) Default: "sym"
+displaySymFile	(string) Default: "sym=file"
+displaySymDir	(string) Default: "sym=dir"
+		Texts to show as kind of completed item. To disable, set empty
+		strings. 
+		`displaySymFile` and `displaySymDir` are only used when
+		|ddc-file-params-followSymlinks| is set to `true`.
+
+						  *ddc-file-params-displayCwd*
+						  *ddc-file-params-displayBuf*
+displayCwd	(string) Default: "cwd"
+displayBuf	(string) Default: "buf"
+		Texts to show as menu of completed item.
+		See |ddc-file-display-rules|.
 
 ==============================================================================
 FREQUENTLY ASKED QUESTIONS (FAQ)			        *ddc-file-faq*
