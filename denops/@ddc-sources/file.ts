@@ -228,13 +228,13 @@ export class Source extends BaseSource<Params> {
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)
+              .filter(({ name }) => name.startsWith(inputFileBasePrefix))
               .map(async (entry) => ({
                 ...entry,
                 isDirectory: entry.isDirectory ||
                   (entry.isSymlink && p.followSymlinks &&
                     await existsDir(path.join(dir, entry.name))),
               }))
-              .filter(({ name }) => name.startsWith(inputFileBasePrefix))
               .map(({ name, isDirectory, isSymlink }): Candidate => ({
                 word: name.slice(inputFileBasePrefix.length) +
                   (p.trailingSlash && isDirectory ? path.sep : ""),
