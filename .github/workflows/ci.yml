@@ -37,7 +37,7 @@ jobs:
           - os: ubuntu-latest
             deno: v1.x
           - os: ubuntu-latest
-            deno: v1.13
+            deno: v1.14
           - os: ubuntu-latest
             deno: v1.14
           - os: ubuntu-latest
