@@ -55,7 +55,7 @@ export class Source extends BaseSource<Params> {
   async gatherCandidates(
     args: GatherCandidatesArguments<Params>,
   ): Promise<Candidate[]> {
-    const p = args.sourceParams as Params;
+    const p = args.sourceParams;
     const mode = p.mode === "os"
       ? (Deno.build.os === "windows" ? "win32" : "posix")
       : p.mode;
@@ -79,6 +79,7 @@ export class Source extends BaseSource<Params> {
     // )
     const [inputFileFull, inputFileBasePrefix, bufPath] = await internal.info(
       args.denops,
+      args.context.input,
       mode === "posix",
     );
 
