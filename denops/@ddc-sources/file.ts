@@ -281,7 +281,7 @@ export class Source extends BaseSource<Params> {
       bufAsRoot: false,
       projAsRoot: true,
       trailingSlash: false,
-      trailingSlashAbbr: false,
+      trailingSlashAbbr: true,
       followSymlinks: false,
       disableMenu: false,
 
