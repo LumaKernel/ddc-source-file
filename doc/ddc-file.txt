@@ -164,6 +164,13 @@ trailingSlash	(boolean)
 
 		Default: false
 
+					   *ddc-file-params-trailingSlashAbbr*
+trailingSlashAbbr	(boolean)
+		Whether to display trailing slash when completing directory
+		name. Note that this won't be actually inserted.
+
+		Default: false
+
 					      *ddc-file-params-followSymlinks*
 followSymlinks	(boolean)
 		Whether to follow symlinks to determine whether the filename

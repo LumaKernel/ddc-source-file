@@ -21,6 +21,7 @@ type Params = {
   bufAsRoot: boolean;
   projAsRoot: boolean;
   trailingSlash: boolean;
+  trailingSlashAbbr: boolean;
   followSymlinks: boolean;
   disableMenu: boolean;
 
@@ -239,6 +240,8 @@ export class Source extends BaseSource<Params> {
               .map(({ name, isDirectory, isSymlink }): Candidate => ({
                 word: name.slice(inputFileBasePrefix.length) +
                   (p.trailingSlash && isDirectory ? path.sep : ""),
+                abbr: name.slice(inputFileBasePrefix.length) +
+                  (p.trailingSlashAbbr && isDirectory ? path.sep : ""),
                 menu: p.disableMenu
                   ? undefined
                   : (menu !== "" && isInputAbs ? path.sep : "") + menu,
@@ -278,6 +281,7 @@ export class Source extends BaseSource<Params> {
       bufAsRoot: false,
       projAsRoot: true,
       trailingSlash: false,
+      trailingSlashAbbr: false,
       followSymlinks: false,
       disableMenu: false,
 
