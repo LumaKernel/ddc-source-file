@@ -26,7 +26,13 @@ endfunction
 function! ddc_file#internal#info(input_line, is_posix) abort
   let input_file_full = s:line_to_file_full(a:input_line, a:is_posix)
   let input_file_base_prefix = s:full_to_base_prefix(input_file_full, a:is_posix)
-  let buf_path = expand('%:p')
+
+  if &buftype ==# '' && expand('%:p') !=# ''
+    let buf_path = expand('%:p')
+  else
+    let buf_path = getcwd() . '/dummy'
+  endif
+
   return [
       \ input_file_full,
       \ input_file_base_prefix,
