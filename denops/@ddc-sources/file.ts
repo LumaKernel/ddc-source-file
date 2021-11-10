@@ -1,8 +1,8 @@
 import {
   BaseSource,
   Candidate,
-  GatherCandidatesArguments,
   fn,
+  GatherCandidatesArguments,
   homeDir,
   path as univPath,
   wrapA,
