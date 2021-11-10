@@ -2,6 +2,7 @@ import {
   BaseSource,
   Candidate,
   GatherCandidatesArguments,
+  fn,
   homeDir,
   path as univPath,
   wrapA,
@@ -139,8 +140,7 @@ export class Source extends BaseSource<Params> {
 
     // point from cwd
     findPointsAsync.push({
-      // dir: Deno.cwd(),
-      dir: await args.denops.call("getcwd") as string,
+      dir: await fn.getcwd(args.denops) as string,
       max: p.cwdMaxCandidates,
       menu: p.displayCwd,
       asRoot: p.cwdAsRoot,
