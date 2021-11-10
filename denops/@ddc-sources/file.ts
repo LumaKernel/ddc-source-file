@@ -139,7 +139,8 @@ export class Source extends BaseSource<Params> {
 
     // point from cwd
     findPointsAsync.push({
-      dir: Deno.cwd(),
+      // dir: Deno.cwd(),
+      dir: await args.denops.call("getcwd") as string,
       max: p.cwdMaxCandidates,
       menu: p.displayCwd,
       asRoot: p.cwdAsRoot,
