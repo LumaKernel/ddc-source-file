@@ -138,11 +138,11 @@ export class Source extends BaseSource<Params> {
       });
     }
 
-    const dir = await fn.getcwd(args.denops) as string;
+    const cwd = await fn.getcwd(args.denops) as string;
 
     // point from cwd
     findPointsAsync.push({
-      dir: dir,
+      dir: cwd,
       max: p.cwdMaxCandidates,
       menu: p.displayCwd,
       asRoot: p.cwdAsRoot,
@@ -152,7 +152,7 @@ export class Source extends BaseSource<Params> {
     findPointsAsync.push(
       util.findMarkers(
         p.projFromCwdMaxCandidates.length,
-        dir,
+        cwd,
         p.projMarkers,
         path,
       )
