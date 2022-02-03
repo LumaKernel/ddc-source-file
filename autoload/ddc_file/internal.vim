@@ -2,8 +2,8 @@ function! s:line_to_file_full(line, is_posix) abort
   return matchlist(
     \ a:line,
     \ a:is_posix
-       \ ? '[[:fname:]/]*$'
-       \ : '[[:fname:]\\]*$'
+       \ ? '\c\%(^\$\%(env:\)\?\)\?[[:fname:]/]*$'
+       \ : '\c\%(^\$\%(env:\)\?\)\?[[:fname:]\\]*$'
   \ )[0]
 endfunction
 
@@ -56,6 +56,9 @@ function! ddc_file#internal#_test() abort
     call assert_equal('../bb/aa', s:line_to_file_full('aa ff ../bb/aa', v:true))
     call assert_equal('a', s:line_to_file_full('\a', v:true))
     call assert_equal('./a', s:line_to_file_full('\./a', v:true))
+    call assert_equal('$Foo/bar', s:line_to_file_full('$Foo/bar', v:true))
+    call assert_equal('/bar', s:line_to_file_full('$Foo /bar', v:true))
+    call assert_equal('Foo/bar', s:line_to_file_full('$ Foo/bar', v:true))
     call assert_equal('', s:full_to_base_prefix('', v:true))
     call assert_equal('', s:full_to_base_prefix('a', v:true))
     call assert_equal('', s:full_to_base_prefix('abc', v:true))
@@ -103,6 +106,14 @@ function! ddc_file#internal#_test() abort
     call assert_equal('..\bb\aa', s:line_to_file_full('aa ff ..\bb\aa', v:false))
     call assert_equal('/a', s:line_to_file_full('/a', v:false))
     call assert_equal('/.\a', s:line_to_file_full('/.\a', v:false))
+    call assert_equal('$Foo/bar', s:line_to_file_full('$Foo/bar', v:false))
+    call assert_equal('/bar', s:line_to_file_full('$Foo /bar', v:false))
+    call assert_equal('Foo/bar', s:line_to_file_full('$ Foo/bar', v:false))
+    call assert_equal('$env:Foo/bar', s:line_to_file_full('$env:Foo/bar', v:false))
+    call assert_equal('/root/$env:Foo/bar', s:line_to_file_full('/root/$env:Foo/bar', v:false))
+    call assert_equal('$Env:Foo/bar', s:line_to_file_full('$Env:Foo/bar', v:false))
+    call assert_equal('/bar', s:line_to_file_full('$env:Foo /bar', v:false))
+    call assert_equal('Foo/bar', s:line_to_file_full('$env: Foo/bar', v:false))
     call assert_equal('', s:full_to_base_prefix('', v:false))
     call assert_equal('', s:full_to_base_prefix('a', v:false))
     call assert_equal('', s:full_to_base_prefix('abc', v:false))

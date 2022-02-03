@@ -5,6 +5,7 @@ import {
   GatherCandidatesArguments,
   homeDir,
   path as univPath,
+  vars,
   wrapA,
 } from "../@ddc-file/deps.ts";
 import * as util from "../@ddc-file/util.ts";
@@ -86,7 +87,7 @@ export class Source extends BaseSource<Params> {
     );
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config'
-    const inputFileFullExpanded = (() => {
+    const inputFileFullExpanded = await (async () => {
       const home = homeDir();
       const last = inputFileFull.endsWith(path.sep) ? path.sep : "";
       {
@@ -107,6 +108,22 @@ export class Source extends BaseSource<Params> {
           home && inputFileFull.toUpperCase().startsWith(pat)
         ) {
           return path.join(home, inputFileFull.slice(pat.length)) + last;
+        }
+      }
+      {
+        const pat = new RegExp(
+          `^(?:\\$(?:env:)?(\\w+)|%(\\w+)%)${path.sep === "/" ? "/" : "\\\\"}`,
+          "i",
+        );
+        const m = inputFileFull.match(pat);
+        if (m) {
+          const env = await vars.environment.get(
+            args.denops,
+            m[1] || m[2],
+          ) as string;
+          if (env) {
+            return path.join(env, inputFileFull.slice(m[0].length)) + last;
+          }
         }
       }
       return inputFileFull;
