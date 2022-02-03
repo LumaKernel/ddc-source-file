@@ -6,6 +6,7 @@ import {
   homeDir,
   path as univPath,
   wrapA,
+  vars,
 } from "../@ddc-file/deps.ts";
 import * as util from "../@ddc-file/util.ts";
 import * as internal from "../@ddc-file/internal_autoload_fn.ts";
@@ -110,10 +111,10 @@ export class Source extends BaseSource<Params> {
         }
       }
       {
-        const pat = `(\\$\\w*)${path.sep}`;
+        const pat = `\\$(\\w*)${path.sep}`;
         const m = inputFileFull.match(pat);
         if (m) {
-          const env = await fn.expand(args.denops, m[1]) as string;
+          const env = await vars.environment.get(args.denops, m[1]) as string;
           if (env) {
             return path.join(env, inputFileFull.slice(m[0].length)) + last;
           }
