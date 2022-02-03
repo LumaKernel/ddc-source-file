@@ -86,7 +86,7 @@ export class Source extends BaseSource<Params> {
     );
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config'
-    const inputFileFullExpanded = (() => {
+    const inputFileFullExpanded = (async() => {
       const home = homeDir();
       const last = inputFileFull.endsWith(path.sep) ? path.sep : "";
       {
@@ -110,10 +110,10 @@ export class Source extends BaseSource<Params> {
         }
       }
       {
-        const pat = `\\$(\\w*)${path.sep}`;
+        const pat = `(\\$\\w*)${path.sep}`;
         const m = inputFileFull.match(pat);
         if (m) {
-          const env = Deno.env.get(m[1]);
+          const env = await fn.expand(args.denops, m[1]) as string;
           if (env) {
             return path.join(env, inputFileFull.slice(m[0].length)) + last;
           }
@@ -124,13 +124,13 @@ export class Source extends BaseSource<Params> {
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config/'
     // e.g. '/home/ubuntu' for inputFileFull = '~/config'
-    const inputDirName = inputFileFullExpanded.endsWith(path.sep)
-      ? inputFileFullExpanded
-      : path.dirname(inputFileFullExpanded);
+    const inputDirName = (await inputFileFullExpanded).endsWith(path.sep)
+      ? await inputFileFullExpanded
+      : path.dirname(await inputFileFullExpanded);
 
     // e.g. true for inputFileFull = '~/config', '/tmp/'
     // e.g. false for inputFileFull = 'tmp/', './tmp'
-    const isInputAbs = path.isAbsolute(inputFileFullExpanded);
+    const isInputAbs = path.isAbsolute(await inputFileFullExpanded);
 
     const findPointsAsync:
       (FindPoint | FindPoint[] | Promise<FindPoint | FindPoint[]>)[] = [];
