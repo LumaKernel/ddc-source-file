@@ -5,8 +5,8 @@ import {
   GatherCandidatesArguments,
   homeDir,
   path as univPath,
-  wrapA,
   vars,
+  wrapA,
 } from "../@ddc-file/deps.ts";
 import * as util from "../@ddc-file/util.ts";
 import * as internal from "../@ddc-file/internal_autoload_fn.ts";
@@ -87,7 +87,7 @@ export class Source extends BaseSource<Params> {
     );
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config'
-    const inputFileFullExpanded = (async() => {
+    const inputFileFullExpanded = await (async () => {
       const home = homeDir();
       const last = inputFileFull.endsWith(path.sep) ? path.sep : "";
       {
@@ -111,10 +111,16 @@ export class Source extends BaseSource<Params> {
         }
       }
       {
-        const pat = `\\$(\\w*)${path.sep}`;
+        const pat = new RegExp(
+          `^(?:\\$(?:env:)?(\\w+)|%(\\w+)%)${path.sep === "/" ? "/" : "\\\\"}`,
+          "i",
+        );
         const m = inputFileFull.match(pat);
         if (m) {
-          const env = await vars.environment.get(args.denops, m[1]) as string;
+          const env = await vars.environment.get(
+            args.denops,
+            m[1] || m[2],
+          ) as string;
           if (env) {
             return path.join(env, inputFileFull.slice(m[0].length)) + last;
           }
@@ -125,13 +131,13 @@ export class Source extends BaseSource<Params> {
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config/'
     // e.g. '/home/ubuntu' for inputFileFull = '~/config'
-    const inputDirName = (await inputFileFullExpanded).endsWith(path.sep)
-      ? await inputFileFullExpanded
-      : path.dirname(await inputFileFullExpanded);
+    const inputDirName = inputFileFullExpanded.endsWith(path.sep)
+      ? inputFileFullExpanded
+      : path.dirname(inputFileFullExpanded);
 
     // e.g. true for inputFileFull = '~/config', '/tmp/'
     // e.g. false for inputFileFull = 'tmp/', './tmp'
-    const isInputAbs = path.isAbsolute(await inputFileFullExpanded);
+    const isInputAbs = path.isAbsolute(inputFileFullExpanded);
 
     const findPointsAsync:
       (FindPoint | FindPoint[] | Promise<FindPoint | FindPoint[]>)[] = [];
