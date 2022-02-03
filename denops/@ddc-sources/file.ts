@@ -109,6 +109,16 @@ export class Source extends BaseSource<Params> {
           return path.join(home, inputFileFull.slice(pat.length)) + last;
         }
       }
+      {
+        const pat = `\\$(\\w*)${path.sep}`;
+        const m = inputFileFull.match(pat);
+        if (m) {
+          const env = Deno.env.get(m[1]);
+          if (env) {
+            return path.join(env, inputFileFull.slice(m[0].length)) + last;
+          }
+        }
+      }
       return inputFileFull;
     })();
 
