@@ -11,6 +11,8 @@ INTRODUCTION					       |ddc-file-introduction|
 DISPLAY RULES					      |ddc-file-display-rules|
 INSTALL							    |ddc-file-install|
 EXAMPLES						   |ddc-file-examples|
+  BASIC EXAMPLES				      |ddc-file-example-basic|
+  NODE MODULES EXAMPLES				       |ddc-file-example-node|
 PARAMS							     |ddc-file-params|
 FREQUENTLY ASKED QUESTIONS (FAQ)			        |ddc-file-faq|
 
@@ -49,6 +51,11 @@ https://github.com/vim-denops/denops.vim
 
 ==============================================================================
 EXAMPLES						   *ddc-file-examples*
+
+I welcome PRs for your useful ideas.
+
+------------------------------------------------------------------------------
+BASIC EXAMPLE					      *ddc-file-example-basic*
 >
 	call ddc#custom#patch_global('sources', ['file'])
 	call ddc#custom#patch_global('sourceOptions', {
@@ -67,6 +74,60 @@ EXAMPLES						   *ddc-file-examples*
 	    \ 'sourceParams': {
 	    \   'file': {
 	    \     'mode': 'win32',
+	    \   },
+	    \ }})
+<
+
+------------------------------------------------------------------------------
+NODE MODULES EXAMPLE				       *ddc-file-example-node*
+
+Find any files under node_modules/ folder from JS-family filetype buffers. You
+can see the completion when typing like `import ... from "<cursor>` in JS
+files. This collects files from up to 3 node_modules/ folders for example
+useful in monorepos.
+This config does not conflict with |ddc-file-example-basic|.
+>
+	call ddc#custom#alias('source', 'node-modules', 'file')
+	call ddc#custom#patch_global({
+	    \ 'sourceOptions': {
+	    \   'node-modules': {
+	    \     'mark': 'NODE',
+	    \     'isVolatile': v:true,
+	    \     'minAutoCompleteLength': 10000,
+	    \     'forceCompletionPattern':
+	    \       '(?:'
+	    \         . '\bimport|'
+	    \         . '\bfrom|'
+	    \         . '\brequire\s*\(|'
+	    \         . '\bresolve\s*\(|'
+	    \         . '\bimport\s*\('
+	    \       . ')'
+	    \       . '\s*(?:''|"|`)[^''"`]*',
+	    \   },
+	    \ },
+	    \ 'sourceParams': {
+	    \   'node-modules': {
+	    \     'cwdMaxCandidates': 0,
+	    \     'bufMaxCandidates': 0,
+	    \     'followSymlinks': v:true,
+	    \     'projMarkers': ['node_modules'],
+	    \     'projFromCwdMaxCandidates': [],
+	    \     'projFromBufMaxCandidates': [],
+	    \     'beforeResolve': 'node_modules',
+	    \     'displayBuf': '',
+	    \   },
+	    \ }})
+	call ddc#custom#patch_filetype(
+	    \ [
+	    \   'javascript',
+	    \   'typescript',
+	    \   'javascriptreact',
+	    \   'typescriptreact',
+	    \   'tsx',
+	    \ ], {
+	    \ 'sourceParams': {
+	    \   'node-modules': {
+	    \     'projFromBufMaxCandidates': [1000, 1000, 1000],
 	    \   },
 	    \ }})
 <
@@ -185,6 +246,20 @@ disableMenu	(boolean)
 		Disable to show menu like `buf^`. |ddc-file-display-rules|
 
 		Default: false
+
+					       *ddc-file-params-beforeResolve*
+						*ddc-file-params-afterResolve*
+beforeResolve	(string) Default: ""
+afterResolve	(string) Default: ""
+		Your input will be transformed as join(find-root,
+		beforeResolve, input, afterResolve). Empty strings are
+		skipped. Path "find-root" denotes cwd/buf or found
+		project-root by other settings. See |ddc-file-example-node|
+		for example. You can specify absolute path to complete for
+		specific folder, like with configuring
+		`beforeResolve: '/usr/bin'` .
+
+		Default: ""
 
 						 *ddc-file-params-displayFile*
 						  *ddc-file-params-displayDir*
