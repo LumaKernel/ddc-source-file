@@ -26,6 +26,8 @@ type Params = {
   trailingSlashAbbr: boolean;
   followSymlinks: boolean;
   disableMenu: boolean;
+  beforeResolve: string;
+  afterResolve: string;
 
   // display customize
   displayFile: string;
@@ -231,7 +233,9 @@ export class Source extends BaseSource<Params> {
         .filter(({ asRoot }) => !isInputAbs || asRoot)
         .map((point) => ({
           ...point,
-          dir: path.normalize(path.join(point.dir, inputDirName)),
+          dir: path.normalize(
+            path.join(point.dir, p.beforeResolve, inputDirName, p.afterResolve),
+          ),
         }))
         .map(async (point) => ({
           point,
@@ -304,6 +308,8 @@ export class Source extends BaseSource<Params> {
       trailingSlashAbbr: true,
       followSymlinks: false,
       disableMenu: false,
+      beforeResolve: "",
+      afterResolve: "",
 
       // display customize
       displayFile: "file",
