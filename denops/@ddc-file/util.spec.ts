@@ -3,8 +3,8 @@ import * as util from "./util.ts";
 
 const createVirtualDirReader: (
   virtualStorage: Record<string, string[]>,
-) => util.DirReader = (virtualStorage) =>
-  (abs: string) => fromA(virtualStorage[abs] ?? []);
+) => util.DirReader = (virtualStorage) => (abs: string) =>
+  fromA(virtualStorage[abs] ?? []);
 
 Deno.test({
   name: "findMarkers() for posix",
