@@ -1,9 +1,9 @@
 import {
   BaseSource,
-  Candidate,
   fn,
-  GatherCandidatesArguments,
+  GatherArguments,
   homeDir,
+  Item,
   path as univPath,
   vars,
   wrapA,
@@ -15,10 +15,10 @@ type Params = {
   mode: "os" | "win32" | "posix";
   takeFileNum: number;
   projMarkers: string[];
-  cwdMaxCandidates: number;
-  bufMaxCandidates: number;
-  projFromCwdMaxCandidates: number[];
-  projFromBufMaxCandidates: number[];
+  cwdMaxItems: number;
+  bufMaxItems: number;
+  projFromCwdMaxItems: number[];
+  projFromBufMaxItems: number[];
   cwdAsRoot: boolean;
   bufAsRoot: boolean;
   projAsRoot: boolean;
@@ -57,19 +57,19 @@ const existsDir = async (filePath: string): Promise<boolean> => {
 };
 
 export class Source extends BaseSource<Params> {
-  async gatherCandidates(
-    args: GatherCandidatesArguments<Params>,
-  ): Promise<Candidate[]> {
+  async gather(
+    args: GatherArguments<Params>,
+  ): Promise<Item[]> {
     const p = args.sourceParams;
     const mode = p.mode === "os"
       ? (Deno.build.os === "windows" ? "win32" : "posix")
       : p.mode;
     const path = mode === "posix" ? univPath.posix : univPath.win32;
     const maxOfMax = Math.max(
-      p.cwdMaxCandidates,
-      p.bufMaxCandidates,
-      ...p.projFromCwdMaxCandidates,
-      ...p.projFromBufMaxCandidates,
+      p.cwdMaxItems,
+      p.bufMaxItems,
+      ...p.projFromCwdMaxItems,
+      ...p.projFromBufMaxItems,
     );
 
     // e.g. (
@@ -162,7 +162,7 @@ export class Source extends BaseSource<Params> {
     // point from cwd
     findPointsAsync.push({
       dir: cwd,
-      max: p.cwdMaxCandidates,
+      max: p.cwdMaxItems,
       menu: p.displayCwd,
       asRoot: p.cwdAsRoot,
     });
@@ -170,7 +170,7 @@ export class Source extends BaseSource<Params> {
     // point from project-root found from cwd
     findPointsAsync.push(
       util.findMarkers(
-        p.projFromCwdMaxCandidates.length,
+        p.projFromCwdMaxItems.length,
         cwd,
         p.projMarkers,
         path,
@@ -178,7 +178,7 @@ export class Source extends BaseSource<Params> {
         .then((dirs) =>
           dirs.map((dir, i) => ({
             dir,
-            max: p.projFromCwdMaxCandidates[i],
+            max: p.projFromCwdMaxItems[i],
             menu: `${p.displayCwd}^${i === 0 ? "" : i + 1}`,
             asRoot: p.projAsRoot,
           }))
@@ -192,14 +192,14 @@ export class Source extends BaseSource<Params> {
       findPointsAsync.push({
         dir: bufDir,
         menu: p.displayBuf,
-        max: p.bufMaxCandidates,
+        max: p.bufMaxItems,
         asRoot: p.bufAsRoot,
       });
 
       // point from project-root found from buf
       findPointsAsync.push(
         util.findMarkers(
-          p.projFromBufMaxCandidates.length,
+          p.projFromBufMaxItems.length,
           bufDir,
           p.projMarkers,
           path,
@@ -207,7 +207,7 @@ export class Source extends BaseSource<Params> {
           .then((dirs) =>
             dirs.map((dir, i) => ({
               dir,
-              max: p.projFromBufMaxCandidates[i],
+              max: p.projFromBufMaxItems[i],
               menu: `${p.displayBuf}^${i === 0 ? "" : i + 1}`,
               asRoot: p.projAsRoot,
             }))
@@ -243,7 +243,7 @@ export class Source extends BaseSource<Params> {
         })),
     );
 
-    const candidatesList = await Promise.all(
+    const itemsList = await Promise.all(
       resolvedFindPoints
         .filter(({ ex }) => ex)
         .map(({ point }) => point)
@@ -261,7 +261,7 @@ export class Source extends BaseSource<Params> {
                   (entry.isSymlink && p.followSymlinks &&
                     await existsDir(path.join(dir, entry.name))),
               }))
-              .map(({ name, isDirectory, isSymlink }): Candidate => ({
+              .map(({ name, isDirectory, isSymlink }): Item => ({
                 word: name.slice(inputFileBasePrefix.length) +
                   (p.trailingSlash && isDirectory ? path.sep : ""),
                 abbr: name.slice(inputFileBasePrefix.length) +
@@ -282,10 +282,9 @@ export class Source extends BaseSource<Params> {
               .catch(() => []),
         ),
     );
-    const candidates: Candidate[] = candidatesList
-      .flat();
+    const items: Item[] = itemsList.flat();
 
-    return candidates;
+    return items;
   }
 
   params(): Params {
@@ -297,10 +296,10 @@ export class Source extends BaseSource<Params> {
         ".github",
       ],
       takeFileNum: 10000,
-      cwdMaxCandidates: 1000,
-      bufMaxCandidates: 1000,
-      projFromCwdMaxCandidates: [1000],
-      projFromBufMaxCandidates: [1000],
+      cwdMaxItems: 1000,
+      bufMaxItems: 1000,
+      projFromCwdMaxItems: [1000],
+      projFromBufMaxItems: [1000],
       cwdAsRoot: false,
       bufAsRoot: false,
       projAsRoot: true,

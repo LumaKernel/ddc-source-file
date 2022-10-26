@@ -19,14 +19,14 @@ FREQUENTLY ASKED QUESTIONS (FAQ)			        |ddc-file-faq|
 ==============================================================================
 INTRODUCTION					       *ddc-file-introduction*
 
-This source collects candidates from file paths under the (1) buffer relative,
+This source collects items from file paths under the (1) buffer relative,
 (2) cwd relative, (3) project root (.git/, etc...; configurable by
 |ddc-file-param-projMarkers|) relative.
 
 ==============================================================================
 DISPLAY RULES					      *ddc-file-display-rules*
 
-In menu (right side of the completion candidates), this source shows how was
+In menu (right side of the completion items), this source shows how was
 that completion got from.
 >
     /cwd^2
@@ -161,21 +161,21 @@ projMarkers	(string[])
 		    ".github",
 		]
 
-					     *ddc-file-param-cwdMaxCandidates*
-cwdMaxCandidates	(number)
-		Max candidates number for cwd relative.
+					     *ddc-file-param-cwdMaxItems*
+cwdMaxItems	(number)
+		Max items number for cwd relative.
 
 		Default: 1000
 
-					     *ddc-file-param-bufMaxCandidates*
-bufMaxCandidates	(number)
-		Max candidates number for buffer relative.
+					     *ddc-file-param-bufMaxItems*
+bufMaxItems	(number)
+		Max items number for buffer relative.
 
 		Default: 1000
 
-				     *ddc-file-param-projFromCwdMaxCandidates*
-projFromCwdMaxCandidates	(number[])
-		Max candidates number for project-root relative found by cwd.
+				     *ddc-file-param-projFromCwdMaxItems*
+projFromCwdMaxItems	(number[])
+		Max items number for project-root relative found by cwd.
 		n-th number is used for n-th recursively found project-root.
 
 		e.g. Consider following situation.
@@ -191,10 +191,10 @@ projFromCwdMaxCandidates	(number[])
 
 		Default: [1000]
 
-				     *ddc-file-param-projFromBufMaxCandidates*
-projFromBufMaxCandidates	(number[])
+				     *ddc-file-param-projFromBufMaxItems*
+projFromBufMaxItems	(number[])
 		Project-root from buffer relative version of
-		|ddc-file-params-projFromCwdMaxCandidates|.
+		|ddc-file-params-projFromCwdMaxItems|.
 
 		Default: [1000]
 
