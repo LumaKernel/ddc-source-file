@@ -107,12 +107,12 @@ This config does not conflict with |ddc-file-example-basic|.
 	    \ },
 	    \ 'sourceParams': {
 	    \   'node-modules': {
-	    \     'cwdMaxCandidates': 0,
-	    \     'bufMaxCandidates': 0,
+	    \     'cwdMaxItems': 0,
+	    \     'bufMaxItems': 0,
 	    \     'followSymlinks': v:true,
 	    \     'projMarkers': ['node_modules'],
-	    \     'projFromCwdMaxCandidates': [],
-	    \     'projFromBufMaxCandidates': [],
+	    \     'projFromCwdMaxItems': [],
+	    \     'projFromBufMaxItems': [],
 	    \     'beforeResolve': 'node_modules',
 	    \     'displayBuf': '',
 	    \   },
@@ -127,7 +127,7 @@ This config does not conflict with |ddc-file-example-basic|.
 	    \ ], {
 	    \ 'sourceParams': {
 	    \   'node-modules': {
-	    \     'projFromBufMaxCandidates': [1000, 1000, 1000],
+	    \     'projFromBufMaxItems': [1000, 1000, 1000],
 	    \   },
 	    \ }})
 <
