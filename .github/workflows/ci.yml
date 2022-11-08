@@ -37,10 +37,6 @@ jobs:
           - os: ubuntu-latest
             deno: v1.x
           - os: ubuntu-latest
-            deno: v1.14
-          - os: ubuntu-latest
-            deno: v1.14
-          - os: ubuntu-latest
             deno: canary
           - os: windows-latest
             deno: v1.x
