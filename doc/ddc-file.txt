@@ -36,10 +36,10 @@ that completion got from.
          ^--- (d) project-root search recursion level (1 is omitted)
 <
 
-It can be disabled by |ddc-file-params-disableMenu| and customized by
+It can be disabled by |ddc-file-param-disableMenu| and customized by
 following.
-- |ddc-file-params-displayCwd|
-- |ddc-file-params-displayBuf|
+- |ddc-file-param-displayCwd|
+- |ddc-file-param-displayBuf|
 
 ==============================================================================
 INSTALL							    *ddc-file-install*
@@ -185,7 +185,8 @@ projFromCwdMaxItems	(number[])
 		     |- .git/
 		     |- src/  <-- cwd
 		        |- my-document.txt
-		If [10] is set, sub-project/ is only found with up to 10 files.
+		If [10] is set, sub-project/ is only found with up to 10
+		files.
 		If [10, 5] is set, sub-project/ is found with up to 10 files
 		and my-project/ is also found with up to 5 files.
 
@@ -194,11 +195,11 @@ projFromCwdMaxItems	(number[])
 				     *ddc-file-param-projFromBufMaxItems*
 projFromBufMaxItems	(number[])
 		Project-root from buffer relative version of
-		|ddc-file-params-projFromCwdMaxItems|.
+		|ddc-file-param-projFromCwdMaxItems|.
 
 		Default: [1000]
 
-						   *ddc-file-params-cwdAsRoot*
+						   *ddc-file-param-cwdAsRoot*
 cwdAsRoot	(boolean)
 		Set to true to complete from cwd even if the input is absolute
 		path. e.g. the input is '/REA', and there is
@@ -206,33 +207,33 @@ cwdAsRoot	(boolean)
 
 		Default: false
 
-						   *ddc-file-params-bufAsRoot*
+						   *ddc-file-param-bufAsRoot*
 bufAsRoot	(boolean)
-		Buffer relative version of |ddc-file-params-cwdAsRoot|.
+		Buffer relative version of |ddc-file-param-cwdAsRoot|.
 
 		Default: false
 
-						  *ddc-file-params-projAsRoot*
+						  *ddc-file-param-projAsRoot*
 projAsRoot	(boolean)
-		Project-root relative version of |ddc-file-params-cwdAsRoot|.
+		Project-root relative version of |ddc-file-param-cwdAsRoot|.
 
 		Default: true
 
-					       *ddc-file-params-trailingSlash*
+					       *ddc-file-param-trailingSlash*
 trailingSlash	(boolean)
 		Whether to include trailing slash when completing directory
 		name.
 
 		Default: false
 
-					   *ddc-file-params-trailingSlashAbbr*
+					   *ddc-file-param-trailingSlashAbbr*
 trailingSlashAbbr	(boolean)
 		Whether to display trailing slash when completing directory
 		name. Note that this won't be actually inserted.
 
 		Default: true
 
-					      *ddc-file-params-followSymlinks*
+					      *ddc-file-param-followSymlinks*
 followSymlinks	(boolean)
 		Whether to follow symlinks to determine whether the filename
 		completing is file or directory. Note that, if you are trying
@@ -241,14 +242,14 @@ followSymlinks	(boolean)
 
 		Default: false
 
-						 *ddc-file-params-disableMenu*
+						 *ddc-file-param-disableMenu*
 disableMenu	(boolean)
 		Disable to show menu like `buf^`. |ddc-file-display-rules|
 
 		Default: false
 
-					       *ddc-file-params-beforeResolve*
-						*ddc-file-params-afterResolve*
+					       *ddc-file-param-beforeResolve*
+						*ddc-file-param-afterResolve*
 beforeResolve	(string) Default: ""
 afterResolve	(string) Default: ""
 		Your input will be transformed as join(find-root,
@@ -261,23 +262,30 @@ afterResolve	(string) Default: ""
 
 		Default: ""
 
-						 *ddc-file-params-displayFile*
-						  *ddc-file-params-displayDir*
-						  *ddc-file-params-displaySym*
-					       *ddc-file-params-displaySymDir*
-					      *ddc-file-params-displaySymFile*
+						*ddc-file-param-filenameChars*
+filenameChars	(string)
+		The characters as filename pattern.
+		The pattern is |/collection| pattern.
+
+		Default: "[:keyword:]"
+
+						 *ddc-file-param-displayFile*
+						  *ddc-file-param-displayDir*
+						  *ddc-file-param-displaySym*
+					       *ddc-file-param-displaySymDir*
+					      *ddc-file-param-displaySymFile*
 displayFile	(string) Default: "file"
 displayDir	(string) Default: "dir"
 displaySym	(string) Default: "sym"
 displaySymFile	(string) Default: "sym=file"
 displaySymDir	(string) Default: "sym=dir"
 		Texts to show as kind of completed item. To disable, set empty
-		strings. 
+		strings.
 		`displaySymFile` and `displaySymDir` are only used when
-		|ddc-file-params-followSymlinks| is set to `true`.
+		|ddc-file-param-followSymlinks| is set to `true`.
 
-						  *ddc-file-params-displayCwd*
-						  *ddc-file-params-displayBuf*
+						  *ddc-file-param-displayCwd*
+						  *ddc-file-param-displayBuf*
 displayCwd	(string) Default: "cwd"
 displayBuf	(string) Default: "buf"
 		Texts to show as menu of completed item.
@@ -288,13 +296,21 @@ FREQUENTLY ASKED QUESTIONS (FAQ)			        *ddc-file-faq*
 
 Q: How to complete paths including spaces or punctuations?
 
-A. ddc-file respects value of |'isfname'| for backward searching, but as
-described in |'isfname'|, it's not recommended to treat paths including such
+A. ddc-file respects value of 'isfname' for backward searching, but as
+described in 'isfname', it's not recommended to treat paths including such
 special characters. If you still want, I cannot stop you, please try this.
 >
-    :set isfname+=32,40-41
+	:set isfname+=32,40-41
 <
 Please take care that leading spaces are also treated as part of path.
+
+Q: I want to include "." as filename pattern.
+
+A. You can change the pattern by |ddc-file-param-filenameChars|.
+>
+	call ddc#custom#patch_global('sourceParams', {
+	    \   'file': {'filenameChars': '[:keyword:].'},
+	    \ })
 
 ==============================================================================
 vim:tw=78:ts=8:noet:ft=help:norl
