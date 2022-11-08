@@ -2,6 +2,7 @@ import {
   BaseSource,
   fn,
   GatherArguments,
+  GetCompletePositionArguments,
   homeDir,
   Item,
   path as univPath,
@@ -58,6 +59,17 @@ const existsDir = async (filePath: string): Promise<boolean> => {
 };
 
 export class Source extends BaseSource<Params> {
+  async getCompletePosition(
+    args: GetCompletePositionArguments<Params>,
+  ): Promise<number> {
+    const completePos = await args.denops.call(
+      "ddc_file#internal#get_pos",
+      args.context.input,
+      args.sourceParams.filenameChars,
+    );
+    return Promise.resolve(completePos);
+  }
+
   async gather(
     args: GatherArguments<Params>,
   ): Promise<Item[]> {
