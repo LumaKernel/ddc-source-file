@@ -28,6 +28,7 @@ type Params = {
   disableMenu: boolean;
   beforeResolve: string;
   afterResolve: string;
+  filenameChars: string;
 
   // display customize
   displayFile: string;
@@ -85,6 +86,7 @@ export class Source extends BaseSource<Params> {
     const [inputFileFull, inputFileBasePrefix, bufPath] = await internal.info(
       args.denops,
       args.context.input,
+      args.sourceParams.filenameChars,
       mode === "posix",
     );
 
@@ -309,6 +311,7 @@ export class Source extends BaseSource<Params> {
       disableMenu: false,
       beforeResolve: "",
       afterResolve: "",
+      filenameChars: "[:keyword:]",
 
       // display customize
       displayFile: "file",
