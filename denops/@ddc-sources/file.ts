@@ -66,7 +66,7 @@ export class Source extends BaseSource<Params> {
       "ddc_file#internal#get_pos",
       args.context.input,
       args.sourceParams.filenameChars,
-    );
+    ) as number;
     return Promise.resolve(completePos);
   }
 
