@@ -105,21 +105,21 @@ export class Source extends BaseSource<Params> {
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config'
     const inputFileFullExpanded = await (async () => {
       const home = homeDir();
-      const last = inputFileFull.endsWith(path.sep) ? path.sep : "";
+      const last = inputFileFull.endsWith(path.SEPARATOR) ? path.SEPARATOR : "";
       {
-        const pat = `~${path.sep}`;
+        const pat = `~${path.SEPARATOR}`;
         if (home && inputFileFull.startsWith(pat)) {
           return path.join(home, inputFileFull.slice(pat.length)) + last;
         }
       }
       {
-        const pat = `$HOME${path.sep}`;
+        const pat = `$HOME${path.SEPARATOR}`;
         if (home && inputFileFull.startsWith(pat)) {
           return path.join(home, inputFileFull.slice(pat.length)) + last;
         }
       }
       {
-        const pat = `%USERPROFILE%${path.sep}`;
+        const pat = `%USERPROFILE%${path.SEPARATOR}`;
         if (
           home && inputFileFull.toUpperCase().startsWith(pat)
         ) {
@@ -128,7 +128,9 @@ export class Source extends BaseSource<Params> {
       }
       {
         const pat = new RegExp(
-          `^(?:\\$(?:env:)?(\\w+)|%(\\w+)%)${path.sep === "/" ? "/" : "\\\\"}`,
+          `^(?:\\$(?:env:)?(\\w+)|%(\\w+)%)${
+            path.SEPARATOR === "/" ? "/" : "\\\\"
+          }`,
           "i",
         );
         const m = inputFileFull.match(pat);
@@ -147,7 +149,7 @@ export class Source extends BaseSource<Params> {
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config/'
     // e.g. '/home/ubuntu' for inputFileFull = '~/config'
-    const inputDirName = inputFileFullExpanded.endsWith(path.sep)
+    const inputDirName = inputFileFullExpanded.endsWith(path.SEPARATOR)
       ? inputFileFullExpanded
       : path.dirname(inputFileFullExpanded);
 
@@ -253,7 +255,9 @@ export class Source extends BaseSource<Params> {
         }))
         .map(async (point) => ({
           point,
-          ex: await existsDir(point.dir.replaceAll(path.sep, univPath.sep)),
+          ex: await existsDir(
+            point.dir.replaceAll(path.SEPARATOR, univPath.SEPARATOR),
+          ),
         })),
     );
 
@@ -264,7 +268,7 @@ export class Source extends BaseSource<Params> {
         .map(
           async ({ dir, menu, max }) =>
             await wrapA(
-              Deno.readDir(dir.replaceAll(path.sep, univPath.sep))
+              Deno.readDir(dir.replaceAll(path.SEPARATOR, univPath.SEPARATOR))
                 [Symbol.asyncIterator](),
             )
               .take(p.takeFileNum)
@@ -277,12 +281,12 @@ export class Source extends BaseSource<Params> {
               }))
               .map(({ name, isDirectory, isSymlink }): Item => ({
                 word: name.slice(inputFileBasePrefix.length) +
-                  (p.trailingSlash && isDirectory ? path.sep : ""),
+                  (p.trailingSlash && isDirectory ? path.SEPARATOR : ""),
                 abbr: name.slice(inputFileBasePrefix.length) +
-                  (p.trailingSlashAbbr && isDirectory ? path.sep : ""),
+                  (p.trailingSlashAbbr && isDirectory ? path.SEPARATOR : ""),
                 menu: p.disableMenu
                   ? undefined
-                  : (menu !== "" && isInputAbs ? path.sep : "") + menu,
+                  : (menu !== "" && isInputAbs ? path.SEPARATOR : "") + menu,
                 kind: isSymlink
                   ? p.followSymlinks
                     ? isDirectory ? p.displaySymDir : p.displaySymFile
