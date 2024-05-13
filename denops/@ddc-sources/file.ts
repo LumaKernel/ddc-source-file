@@ -6,7 +6,9 @@ import {
   homeDir,
   Item,
   path as univPath,
+  posix,
   vars,
+  windows,
   wrapA,
 } from "../@ddc-file/deps.ts";
 import * as util from "../@ddc-file/util.ts";
@@ -77,7 +79,7 @@ export class Source extends BaseSource<Params> {
     const mode = p.mode === "os"
       ? (Deno.build.os === "windows" ? "win32" : "posix")
       : p.mode;
-    const path = mode === "posix" ? univPath.posix : univPath.win32;
+    const path = mode === "posix" ? posix : windows;
     const maxOfMax = Math.max(
       p.cwdMaxItems,
       p.bufMaxItems,

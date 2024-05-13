@@ -13,6 +13,8 @@ export type {
 export * as path from "jsr:@std/path@0.224.0";
 export * as fs from "jsr:@std/fs@0.224.0";
 export * as asserts from "jsr:@std/assert@0.225.1";
+export * as posix from "jsr:@std/path@0.224.0/posix";
+export * as windows from "jsr:@std/path@0.224.0/windows";
 
 export {
   asyncIteratorFrom as fromA,
