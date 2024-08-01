@@ -1,20 +1,19 @@
-export type {
-  Context,
-  Item,
-} from "https://deno.land/x/ddc_vim@v5.0.0/types.ts";
-export { BaseSource } from "https://deno.land/x/ddc_vim@v5.0.0/types.ts";
-export type { Denops } from "https://deno.land/x/ddc_vim@v5.0.0/deps.ts";
-export { fn, vars } from "https://deno.land/x/ddc_vim@v5.0.0/deps.ts";
+export type { Context, Item } from "jsr:@shougo/ddc-vim@6.0.0/types";
+export { BaseSource } from "jsr:@shougo/ddc-vim@6.0.0/types";
 export type {
   GatherArguments,
   GetCompletePositionArguments,
-} from "https://deno.land/x/ddc_vim@v5.0.0/base/source.ts";
+} from "jsr:@shougo/ddc-vim@6.0.0/source";
 
-export * as path from "jsr:@std/path@0.224.0";
-export * as fs from "jsr:@std/fs@0.224.0";
-export * as asserts from "jsr:@std/assert@0.225.1";
-export * as posix from "jsr:@std/path@0.224.0/posix";
-export * as windows from "jsr:@std/path@0.224.0/windows";
+export type { Denops } from "jsr:@denops/std@7.0.1";
+export * as fn from "jsr:@denops/std@7.0.1/function";
+export * as vars from "jsr:@denops/std@7.0.1/variable";
+
+export * as path from "jsr:@std/path@1.0.2";
+export * as fs from "jsr:@std/fs@1.0.0";
+export * as asserts from "jsr:@std/assert@1.0.1";
+export * as posix from "jsr:@std/path@1.0.2/posix";
+export * as windows from "jsr:@std/path@1.0.2/windows";
 
 export {
   asyncIteratorFrom as fromA,
