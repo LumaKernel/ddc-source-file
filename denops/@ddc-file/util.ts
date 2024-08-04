@@ -1,4 +1,9 @@
-import { path as univPath, wrapA } from "./deps.ts";
+import {
+  path as univPath,
+  posix as posixPath,
+  windows as windowsPath,
+  wrapA,
+} from "./deps.ts";
 
 export type DirReader = (absPath: string) => AsyncIterator<string>;
 export const defaultDirReader: DirReader = (absPath) =>
@@ -10,7 +15,7 @@ export const findMarkers = async (
   max: number,
   fromAbsNormalized: string,
   targets: string[],
-  path: typeof univPath | typeof univPath.win32 | typeof univPath.posix,
+  path: typeof univPath | typeof posixPath | typeof windowsPath,
   dirReader: DirReader = defaultDirReader,
 ): Promise<string[]> => {
   if (max <= 0) return [];
