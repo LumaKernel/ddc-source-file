@@ -1,9 +1,10 @@
+import * as univPath from "jsr:@std/path@^1.0.2";
+import * as windowsPath from "jsr:@std/path@^1.0.2/windows";
+import * as posixPath from "jsr:@std/path@^1.0.2/posix";
+
 import {
-  path as univPath,
-  posix as posixPath,
-  windows as windowsPath,
-  wrapA,
-} from "./deps.ts";
+  wrapAsyncIterator as wrapA,
+} from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
 
 export type DirReader = (absPath: string) => AsyncIterator<string>;
 export const defaultDirReader: DirReader = (absPath) =>

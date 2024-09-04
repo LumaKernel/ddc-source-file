@@ -1,6 +1,5 @@
-import { Denops, fn } from "./deps.ts";
-export type { Denops };
-export { fn };
+import type { Denops } from "jsr:@denops/std@^7.0.1";
+import * as fn from "jsr:@denops/std@^7.0.1/function";
 
 // deno-lint-ignore no-explicit-any
 const createCaller = (name: string): any => {

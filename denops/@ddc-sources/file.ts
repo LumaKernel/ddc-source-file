@@ -1,18 +1,24 @@
-import {
-  BaseSource,
-  fn,
-  GatherArguments,
-  GetCompletePositionArguments,
-  homeDir,
-  Item,
-  path as univPath,
-  posix,
-  vars,
-  windows,
-  wrapA,
-} from "../@ddc-file/deps.ts";
 import * as util from "../@ddc-file/util.ts";
 import * as internal from "../@ddc-file/internal_autoload_fn.ts";
+
+import { BaseSource } from "jsr:@shougo/ddc-vim@^7.0.0/source";
+import type {
+  GatherArguments,
+  GetCompletePositionArguments,
+} from "jsr:@shougo/ddc-vim@^7.0.0/source";
+import type { Item } from "jsr:@shougo/ddc-vim@^7.0.0/types";
+
+import * as fn from "jsr:@denops/std@^7.0.1/function";
+import * as vars from "jsr:@denops/std@^7.0.1/variable";
+
+import * as univPath from "jsr:@std/path@^1.0.2";
+import * as posix from "jsr:@std/path@^1.0.2/posix";
+import * as windows from "jsr:@std/path@^1.0.2/windows";
+
+import {
+  wrapAsyncIterator as wrapA,
+} from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
+import homeDir from "https://deno.land/x/dir@1.5.2/home_dir/mod.ts";
 
 type Params = {
   mode: "os" | "win32" | "posix";

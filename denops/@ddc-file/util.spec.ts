@@ -1,5 +1,10 @@
-import { asserts, fromA, path } from "./deps.ts";
 import * as util from "./util.ts";
+
+import * as windowsPath from "jsr:@std/path@^1.0.2/windows";
+import * as posixPath from "jsr:@std/path@^1.0.2/posix";
+import * as asserts from "jsr:@std/assert@^1.0.1";
+
+import { asyncIteratorFrom as fromA } from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
 
 const createVirtualDirReader: (
   virtualStorage: Record<string, string[]>,
@@ -21,7 +26,7 @@ Deno.test({
         0,
         "/a/b/c/d",
         ["1", "2", "3"],
-        path.posix,
+        posixPath,
         reader,
       ),
       [],
@@ -31,7 +36,7 @@ Deno.test({
         1,
         "/a/b/c/d",
         ["1", "2", "3"],
-        path.posix,
+        posixPath,
         reader,
       ),
       ["/a/b/c/d"],
@@ -41,7 +46,7 @@ Deno.test({
         2,
         "/a/b/c/d",
         ["1", "2", "3"],
-        path.posix,
+        posixPath,
         reader,
       ),
       ["/a/b/c/d", "/a/b"],
@@ -51,7 +56,7 @@ Deno.test({
         3,
         "/a/b/c/d",
         ["1", "2", "3"],
-        path.posix,
+        posixPath,
         reader,
       ),
       ["/a/b/c/d", "/a/b", "/"],
@@ -61,7 +66,7 @@ Deno.test({
         4,
         "/a/b/c/d",
         ["1", "2", "3"],
-        path.posix,
+        posixPath,
         reader,
       ),
       ["/a/b/c/d", "/a/b", "/"],
@@ -82,7 +87,7 @@ Deno.test({
         1,
         "C:\\a\\b",
         ["1", "2", "3"],
-        path.win32,
+        windowsPath,
         reader,
       ),
       ["C:\\a\\b"],
@@ -92,7 +97,7 @@ Deno.test({
         3,
         "C:\\a\\b",
         ["1", "2", "3"],
-        path.win32,
+        windowsPath,
         reader,
       ),
       ["C:\\a\\b", "C:\\"],
@@ -114,7 +119,7 @@ Deno.test({
         1,
         "\\\\dir\\to\\path",
         ["1", "2", "3"],
-        path.win32,
+        windowsPath,
         reader,
       ),
       ["\\\\dir\\to\\path"],
@@ -124,7 +129,7 @@ Deno.test({
         3,
         "\\\\dir\\to\\path",
         ["1", "2", "3"],
-        path.win32,
+        windowsPath,
         reader,
       ),
       ["\\\\dir\\to\\path"],
