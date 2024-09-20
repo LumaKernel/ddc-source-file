@@ -4,6 +4,7 @@ import * as windowsPath from "jsr:@std/path@^1.0.2/windows";
 import * as posixPath from "jsr:@std/path@^1.0.2/posix";
 import * as asserts from "jsr:@std/assert@^1.0.1";
 
+// TODO: Replace to AsyncIterator
 import { asyncIteratorFrom as fromA } from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
 
 const createVirtualDirReader: (

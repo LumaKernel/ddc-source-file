@@ -15,10 +15,11 @@ import * as univPath from "jsr:@std/path@^1.0.2";
 import * as posix from "jsr:@std/path@^1.0.2/posix";
 import * as windows from "jsr:@std/path@^1.0.2/windows";
 
+// TODO: Replace to AsyncIterator
 import {
   wrapAsyncIterator as wrapA,
 } from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
-import homeDir from "https://deno.land/x/dir@1.5.2/home_dir/mod.ts";
+import { dir } from "jsr:@cross/dir@^1.1.0";
 
 type Params = {
   mode: "os" | "win32" | "posix";
@@ -112,7 +113,7 @@ export class Source extends BaseSource<Params> {
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config'
     const inputFileFullExpanded = await (async () => {
-      const home = homeDir();
+      const home = await dir("home");
       const last = inputFileFull.endsWith(path.SEPARATOR) ? path.SEPARATOR : "";
       {
         const pat = `~${path.SEPARATOR}`;
