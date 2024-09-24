@@ -68,7 +68,7 @@ const existsDir = async (filePath: string): Promise<boolean> => {
 };
 
 export class Source extends BaseSource<Params> {
-  async getCompletePosition(
+  override async getCompletePosition(
     args: GetCompletePositionArguments<Params>,
   ): Promise<number> {
     const completePos = await args.denops.call(
@@ -79,7 +79,7 @@ export class Source extends BaseSource<Params> {
     return Promise.resolve(completePos);
   }
 
-  async gather(
+  override async gather(
     args: GatherArguments<Params>,
   ): Promise<Item[]> {
     const p = args.sourceParams;
@@ -314,7 +314,7 @@ export class Source extends BaseSource<Params> {
     return items;
   }
 
-  params(): Params {
+  override params(): Params {
     return {
       mode: "posix",
       projMarkers: [
