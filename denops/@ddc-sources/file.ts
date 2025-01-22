@@ -1,12 +1,12 @@
 import * as util from "../@ddc-file/util.ts";
 import * as internal from "../@ddc-file/internal_autoload_fn.ts";
 
-import { BaseSource } from "jsr:@shougo/ddc-vim@^7.0.0/source";
+import { BaseSource } from "jsr:@shougo/ddc-vim@^9.0.0/source";
 import type {
   GatherArguments,
   GetCompletePositionArguments,
-} from "jsr:@shougo/ddc-vim@^7.0.0/source";
-import type { Item } from "jsr:@shougo/ddc-vim@^7.0.0/types";
+} from "jsr:@shougo/ddc-vim@^9.0.0/source";
+import type { Item } from "jsr:@shougo/ddc-vim@^9.0.0/types";
 
 import * as fn from "jsr:@denops/std@^7.0.1/function";
 import * as vars from "jsr:@denops/std@^7.0.1/variable";
