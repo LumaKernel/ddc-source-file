@@ -68,6 +68,8 @@ const existsDir = async (filePath: string): Promise<boolean> => {
 };
 
 export class Source extends BaseSource<Params> {
+  override isBytePos = true;
+
   override async getCompletePosition(
     args: GetCompletePositionArguments<Params>,
   ): Promise<number> {
