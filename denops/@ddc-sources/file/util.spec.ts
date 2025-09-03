@@ -1,16 +1,17 @@
 import * as util from "./util.ts";
 
-import * as windowsPath from "jsr:@std/path@^1.0.2/windows";
-import * as posixPath from "jsr:@std/path@^1.0.2/posix";
-import * as asserts from "jsr:@std/assert@^1.0.1";
-
-// TODO: Replace to AsyncIterator
-import { asyncIteratorFrom as fromA } from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
+import * as windowsPath from "@std/path/windows";
+import * as posixPath from "@std/path/posix";
+import * as asserts from "@std/assert";
 
 const createVirtualDirReader: (
   virtualStorage: Record<string, string[]>,
-) => util.DirReader = (virtualStorage) => (abs: string) =>
-  fromA(virtualStorage[abs] ?? []);
+) => util.DirReader = (virtualStorage) =>
+  async function* (abs: string) {
+    for (const name of virtualStorage[abs] ?? []) {
+      yield name;
+    }
+  };
 
 Deno.test({
   name: "findMarkers() for posix",

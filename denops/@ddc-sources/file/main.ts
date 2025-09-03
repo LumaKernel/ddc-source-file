@@ -1,25 +1,21 @@
-import * as util from "../@ddc-file/util.ts";
-import * as internal from "../@ddc-file/internal_autoload_fn.ts";
+import * as util from "./util.ts";
+import * as internal from "./internal_autoload_fn.ts";
 
-import { BaseSource } from "jsr:@shougo/ddc-vim@^9.0.0/source";
+import { BaseSource } from "@shougo/ddc-vim/source";
 import type {
   GatherArguments,
   GetCompletePositionArguments,
-} from "jsr:@shougo/ddc-vim@^9.0.0/source";
-import type { Item } from "jsr:@shougo/ddc-vim@^9.0.0/types";
+} from "@shougo/ddc-vim/source";
+import type { Item } from "@shougo/ddc-vim/types";
 
-import * as fn from "jsr:@denops/std@^7.0.1/function";
-import * as vars from "jsr:@denops/std@^7.0.1/variable";
+import * as fn from "@denops/std/function";
+import * as vars from "@denops/std/variable";
 
-import * as univPath from "jsr:@std/path@^1.0.2";
-import * as posix from "jsr:@std/path@^1.0.2/posix";
-import * as windows from "jsr:@std/path@^1.0.2/windows";
+import * as univPath from "@std/path";
+import * as posix from "@std/path/posix";
+import * as windows from "@std/path/windows";
 
-// TODO: Replace to AsyncIterator
-import {
-  wrapAsyncIterator as wrapA,
-} from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
-import { dir } from "jsr:@cross/dir@^1.1.0";
+import { dir } from "@cross/dir";
 
 type Params = {
   mode: "os" | "win32" | "posix";
@@ -276,40 +272,46 @@ export class Source extends BaseSource<Params> {
       resolvedFindPoints
         .filter(({ ex }) => ex)
         .map(({ point }) => point)
-        .map(
-          async ({ dir, menu, max }) =>
-            await wrapA(
-              Deno.readDir(dir.replaceAll(path.SEPARATOR, univPath.SEPARATOR))
-                [Symbol.asyncIterator](),
-            )
-              .take(p.takeFileNum)
-              .filter(({ name }) => name.startsWith(inputFileBasePrefix))
-              .map(async (entry) => ({
-                ...entry,
-                isDirectory: entry.isDirectory ||
-                  (entry.isSymlink && p.followSymlinks &&
-                    await existsDir(path.join(dir, entry.name))),
-              }))
-              .map(({ name, isDirectory, isSymlink }): Item => ({
-                word: name.slice(inputFileBasePrefix.length) +
-                  (p.trailingSlash && isDirectory ? path.SEPARATOR : ""),
-                abbr: name.slice(inputFileBasePrefix.length) +
-                  (p.trailingSlashAbbr && isDirectory ? path.SEPARATOR : ""),
-                menu: p.disableMenu
-                  ? undefined
-                  : (menu !== "" && isInputAbs ? path.SEPARATOR : "") + menu,
-                kind: isSymlink
-                  ? p.followSymlinks
-                    ? isDirectory ? p.displaySymDir : p.displaySymFile
-                    : p.displaySym
-                  : isDirectory
-                  ? p.displayDir
-                  : p.displayFile,
-              }))
-              .take(max)
-              .toArray()
-              .catch(() => []),
-        ),
+        .map(async ({ dir, menu, max }) => {
+          const entries: Item[] = [];
+          const dirIter = Deno.readDir(
+            dir.replaceAll(path.SEPARATOR, univPath.SEPARATOR),
+          );
+          let count = 0;
+          for await (const entry of dirIter) {
+            if (count >= p.takeFileNum || entries.length >= max) break;
+            if (!entry.name.startsWith(inputFileBasePrefix)) continue;
+
+            let isDirectory = entry.isDirectory;
+            if (
+              entry.isSymlink &&
+              p.followSymlinks &&
+              await existsDir(path.join(dir, entry.name))
+            ) {
+              isDirectory = true;
+            }
+
+            const namePart = entry.name.slice(inputFileBasePrefix.length);
+            entries.push({
+              word: namePart +
+                (p.trailingSlash && isDirectory ? path.SEPARATOR : ""),
+              abbr: namePart +
+                (p.trailingSlashAbbr && isDirectory ? path.SEPARATOR : ""),
+              menu: p.disableMenu
+                ? undefined
+                : (menu !== "" && isInputAbs ? path.SEPARATOR : "") + menu,
+              kind: entry.isSymlink
+                ? p.followSymlinks
+                  ? isDirectory ? p.displaySymDir : p.displaySymFile
+                  : p.displaySym
+                : isDirectory
+                ? p.displayDir
+                : p.displayFile,
+            });
+            count++;
+          }
+          return entries;
+        }).map((promise) => promise.catch(() => [])),
     );
     const items: Item[] = itemsList.flat();
 

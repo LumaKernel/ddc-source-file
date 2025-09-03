@@ -1,16 +1,13 @@
-import * as univPath from "jsr:@std/path@^1.0.2";
-import * as windowsPath from "jsr:@std/path@^1.0.2/windows";
-import * as posixPath from "jsr:@std/path@^1.0.2/posix";
+import type * as univPath from "@std/path";
+import type * as windowsPath from "@std/path/windows";
+import type * as posixPath from "@std/path/posix";
 
-import {
-  wrapAsyncIterator as wrapA,
-} from "https://deno.land/x/iterator_helpers@v0.1.2/mod.ts";
-
-export type DirReader = (absPath: string) => AsyncIterator<string>;
-export const defaultDirReader: DirReader = (absPath) =>
-  wrapA(Deno.readDir(absPath)[Symbol.asyncIterator]())
-    .map((entry) => entry.name)
-    .unwrap();
+export type DirReader = (absPath: string) => AsyncIterable<string>;
+export const defaultDirReader: DirReader = async function* (absPath) {
+  for await (const entry of Deno.readDir(absPath)) {
+    yield entry.name;
+  }
+};
 
 export const findMarkers = async (
   max: number,
@@ -20,8 +17,13 @@ export const findMarkers = async (
   dirReader: DirReader = defaultDirReader,
 ): Promise<string[]> => {
   if (max <= 0) return [];
-  const found = await wrapA(dirReader(fromAbsNormalized))
-    .some((p) => targets.includes(p));
+  let found = false;
+  for await (const p of dirReader(fromAbsNormalized)) {
+    if (targets.includes(p)) {
+      found = true;
+      break;
+    }
+  }
   const parsed = path.parse(fromAbsNormalized);
   if (found) {
     if (parsed.root === fromAbsNormalized) return [fromAbsNormalized];
