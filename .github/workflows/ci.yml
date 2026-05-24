@@ -26,7 +26,7 @@ jobs:
           deno-version: ${{ matrix.deno }}
       - run: deno lint
       - run: deno fmt --check
-      - run: deno test --unstable --no-run
+      - run: deno test
   test:
     needs: [check]
     runs-on: ${{ matrix.os }}
@@ -47,4 +47,4 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
-      - run: deno test --unstable -A
+      - run: deno test
