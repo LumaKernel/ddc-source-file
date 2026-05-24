@@ -18,10 +18,10 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            deno: v1.x
+            deno: v2.x
     steps:
-      - uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v1
+      - uses: actions/checkout@v6
+      - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
       - run: deno lint
@@ -35,16 +35,16 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            deno: v1.x
+            deno: v2.x
           - os: ubuntu-latest
             deno: canary
           - os: windows-latest
-            deno: v1.x
+            deno: v2.x
           - os: macos-latest
-            deno: v1.x
+            deno: v2.x
     steps:
-      - uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v1
+      - uses: actions/checkout@v6
+      - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
       - run: deno test --unstable -A
