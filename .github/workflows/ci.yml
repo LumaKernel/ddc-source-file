@@ -24,9 +24,8 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
-      - run: deno lint
-      - run: deno fmt --check
-      - run: deno test
+      - run: deno task lint
+      - run: deno task fmt
   test:
     needs: [check]
     runs-on: ${{ matrix.os }}
@@ -47,4 +46,4 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno }}
-      - run: deno test
+      - run: deno task test
