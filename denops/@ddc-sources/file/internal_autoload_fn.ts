@@ -1,12 +1,9 @@
 import type { Denops } from "@denops/std";
 import * as fn from "@denops/std/function";
 
-// deno-lint-ignore no-explicit-any
-const createCaller = (name: string): any => {
-  return async (denops: Denops, ...args: unknown[]) => {
-    return await fn.call(denops, name, args);
-  };
-};
+const createCaller = <T>(name: string): T =>
+  (async (denops: Denops, ...args: unknown[]) =>
+    await fn.call(denops, name, args)) as unknown as T;
 
 export type Info = (
   denops: Denops,
@@ -18,6 +15,6 @@ export type Info = (
   string,
   string,
 ]>;
-export const info = createCaller(
+export const info: Info = createCaller<Info>(
   "ddc_file#internal#info",
-) as Info;
+);

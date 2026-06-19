@@ -12,38 +12,34 @@ export const defaultDirReader: DirReader = async function* (absPath) {
 export const findMarkers = async (
   max: number,
   fromAbsNormalized: string,
-  targets: string[],
+  targets: readonly string[],
   path: typeof univPath | typeof posixPath | typeof windowsPath,
   dirReader: DirReader = defaultDirReader,
 ): Promise<string[]> => {
-  if (max <= 0) return [];
-  let found = false;
-  for await (const p of dirReader(fromAbsNormalized)) {
-    if (targets.includes(p)) {
-      found = true;
-      break;
+  const targetsSet = new Set(targets);
+  const result: string[] = [];
+  let remaining = max;
+  let current = fromAbsNormalized;
+
+  while (remaining > 0) {
+    let found = false;
+    for await (const p of dirReader(current)) {
+      if (targetsSet.has(p)) {
+        found = true;
+        break;
+      }
     }
+    const parsed = path.parse(current);
+    // A directory is a filesystem root when its root equals itself, or when
+    // its parent dir equals itself (e.g. UNC roots such as \\server\share).
+    const isRoot = parsed.root === current || parsed.dir === current;
+    if (found) {
+      result.push(current);
+      remaining--;
+    }
+    if (isRoot) break;
+    current = parsed.dir;
   }
-  const parsed = path.parse(fromAbsNormalized);
-  if (found) {
-    if (parsed.root === fromAbsNormalized) return [fromAbsNormalized];
-    return [
-      fromAbsNormalized,
-      ...await findMarkers(
-        max - 1,
-        parsed.dir,
-        targets,
-        path,
-        dirReader,
-      ),
-    ];
-  }
-  if (parsed.root === fromAbsNormalized) return [];
-  return await findMarkers(
-    max,
-    parsed.dir,
-    targets,
-    path,
-    dirReader,
-  );
+
+  return result;
 };
