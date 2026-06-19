@@ -8,6 +8,7 @@ import type {
 } from "@shougo/ddc-vim/source";
 import type { Item } from "@shougo/ddc-vim/types";
 
+import type { Denops } from "@denops/std";
 import * as fn from "@denops/std/function";
 import * as vars from "@denops/std/variable";
 
@@ -53,15 +54,78 @@ type FindPoint = {
   menu: string;
 };
 
+type PathModule = typeof posix | typeof windows;
+
 const existsDir = async (filePath: string): Promise<boolean> => {
   try {
     return (await Deno.stat(filePath)).isDirectory;
   } catch (_e: unknown) {
-    // Should not care about error.
+    // Treat all stat errors (NotFound, PermissionDenied, etc.) as non-existent.
     // https://github.com/denoland/deno_std/issues/1216
     return false;
   }
 };
+
+/** Expand leading home/env-var prefixes in `inputFileFull`. */
+const expandInputPath = async (
+  denops: Denops,
+  inputFileFull: string,
+  path: PathModule,
+): Promise<string> => {
+  const home = await dir("home");
+  const last = inputFileFull.endsWith(path.SEPARATOR) ? path.SEPARATOR : "";
+  {
+    const pat = `~${path.SEPARATOR}`;
+    if (home && inputFileFull.startsWith(pat)) {
+      return path.join(home, inputFileFull.slice(pat.length)) + last;
+    }
+  }
+  {
+    const pat = `$HOME${path.SEPARATOR}`;
+    if (home && inputFileFull.startsWith(pat)) {
+      return path.join(home, inputFileFull.slice(pat.length)) + last;
+    }
+  }
+  {
+    const pat = `%USERPROFILE%${path.SEPARATOR}`;
+    if (home && inputFileFull.toUpperCase().startsWith(pat)) {
+      return path.join(home, inputFileFull.slice(pat.length)) + last;
+    }
+  }
+  {
+    const pat = new RegExp(
+      `^(?:\\$(?:env:)?(\\w+)|%(\\w+)%)${
+        path.SEPARATOR === "/" ? "/" : "\\\\"
+      }`,
+      "i",
+    );
+    const m = inputFileFull.match(pat);
+    if (m) {
+      const env = await vars.environment.get(
+        denops,
+        m[1] || m[2],
+      ) as string;
+      if (env) {
+        return path.join(env, inputFileFull.slice(m[0].length)) + last;
+      }
+    }
+  }
+  return inputFileFull;
+};
+
+/** Map project-root directories to FindPoints, assigning menus with indices. */
+const buildProjFindPoints = (
+  dirs: string[],
+  maxItems: number[],
+  displayLabel: string,
+  asRoot: boolean,
+): FindPoint[] =>
+  dirs.map((dir, i) => ({
+    dir,
+    max: maxItems[i],
+    menu: `${displayLabel}^${i === 0 ? "" : i + 1}`,
+    asRoot,
+  }));
 
 export class Source extends BaseSource<Params> {
   override isBytePos = true;
@@ -74,7 +138,7 @@ export class Source extends BaseSource<Params> {
       args.context.input,
       args.sourceParams.filenameChars,
     ) as number;
-    return Promise.resolve(completePos);
+    return completePos;
   }
 
   override async gather(
@@ -85,7 +149,9 @@ export class Source extends BaseSource<Params> {
       ? (Deno.build.os === "windows" ? "win32" : "posix")
       : p.mode;
     const path = mode === "posix" ? posix : windows;
-    const maxOfMax = Math.max(
+    // Upper bound on the number of candidates used when the input path is
+    // absolute (the point from the filesystem root must cover all other limits).
+    const maxCandidatesForRoot = Math.max(
       p.cwdMaxItems,
       p.bufMaxItems,
       ...p.projFromCwdMaxItems,
@@ -110,49 +176,11 @@ export class Source extends BaseSource<Params> {
     );
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config'
-    const inputFileFullExpanded = await (async () => {
-      const home = await dir("home");
-      const last = inputFileFull.endsWith(path.SEPARATOR) ? path.SEPARATOR : "";
-      {
-        const pat = `~${path.SEPARATOR}`;
-        if (home && inputFileFull.startsWith(pat)) {
-          return path.join(home, inputFileFull.slice(pat.length)) + last;
-        }
-      }
-      {
-        const pat = `$HOME${path.SEPARATOR}`;
-        if (home && inputFileFull.startsWith(pat)) {
-          return path.join(home, inputFileFull.slice(pat.length)) + last;
-        }
-      }
-      {
-        const pat = `%USERPROFILE%${path.SEPARATOR}`;
-        if (
-          home && inputFileFull.toUpperCase().startsWith(pat)
-        ) {
-          return path.join(home, inputFileFull.slice(pat.length)) + last;
-        }
-      }
-      {
-        const pat = new RegExp(
-          `^(?:\\$(?:env:)?(\\w+)|%(\\w+)%)${
-            path.SEPARATOR === "/" ? "/" : "\\\\"
-          }`,
-          "i",
-        );
-        const m = inputFileFull.match(pat);
-        if (m) {
-          const env = await vars.environment.get(
-            args.denops,
-            m[1] || m[2],
-          ) as string;
-          if (env) {
-            return path.join(env, inputFileFull.slice(m[0].length)) + last;
-          }
-        }
-      }
-      return inputFileFull;
-    })();
+    const inputFileFullExpanded = await expandInputPath(
+      args.denops,
+      inputFileFull,
+      path,
+    );
 
     // e.g. '/home/ubuntu/config' for inputFileFull = '~/config/'
     // e.g. '/home/ubuntu' for inputFileFull = '~/config'
@@ -175,7 +203,7 @@ export class Source extends BaseSource<Params> {
       findPointsAsync.push({
         dir: "",
         menu: "",
-        max: maxOfMax,
+        max: maxCandidatesForRoot,
         asRoot: true,
       });
     }
@@ -199,12 +227,12 @@ export class Source extends BaseSource<Params> {
         path,
       )
         .then((dirs) =>
-          dirs.map((dir, i) => ({
-            dir,
-            max: p.projFromCwdMaxItems[i],
-            menu: `${p.displayCwd}^${i === 0 ? "" : i + 1}`,
-            asRoot: p.projAsRoot,
-          }))
+          buildProjFindPoints(
+            dirs,
+            p.projFromCwdMaxItems,
+            p.displayCwd,
+            p.projAsRoot,
+          )
         )
         .catch(() => []),
     );
@@ -228,12 +256,12 @@ export class Source extends BaseSource<Params> {
           path,
         )
           .then((dirs) =>
-            dirs.map((dir, i) => ({
-              dir,
-              max: p.projFromBufMaxItems[i],
-              menu: `${p.displayBuf}^${i === 0 ? "" : i + 1}`,
-              asRoot: p.projAsRoot,
-            }))
+            buildProjFindPoints(
+              dirs,
+              p.projFromBufMaxItems,
+              p.displayBuf,
+              p.projAsRoot,
+            )
           )
           .catch(() => []),
       );
