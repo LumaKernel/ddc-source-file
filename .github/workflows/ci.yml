@@ -20,8 +20,8 @@ jobs:
           - os: ubuntu-latest
             deno: v2.x
     steps:
-      - uses: actions/checkout@v6
-      - uses: denoland/setup-deno@v2
+      - uses: actions/checkout@v6.1.0
+      - uses: denoland/setup-deno@v2.0.5
         with:
           deno-version: ${{ matrix.deno }}
       - run: deno task lint
@@ -42,8 +42,8 @@ jobs:
           - os: macos-latest
             deno: v2.x
     steps:
-      - uses: actions/checkout@v6
-      - uses: denoland/setup-deno@v2
+      - uses: actions/checkout@v6.1.0
+      - uses: denoland/setup-deno@v2.0.5
         with:
           deno-version: ${{ matrix.deno }}
       - run: deno task test
