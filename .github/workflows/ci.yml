@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: "0 0 1 * *"
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ${{ matrix.os }}
@@ -21,6 +24,8 @@ jobs:
             deno: v2.x
     steps:
       - uses: actions/checkout@v6.1.0
+        with:
+          persist-credentials: false
       - uses: denoland/setup-deno@v2.0.5
         with:
           deno-version: ${{ matrix.deno }}
@@ -43,6 +48,8 @@ jobs:
             deno: v2.x
     steps:
       - uses: actions/checkout@v6.1.0
+        with:
+          persist-credentials: false
       - uses: denoland/setup-deno@v2.0.5
         with:
           deno-version: ${{ matrix.deno }}
